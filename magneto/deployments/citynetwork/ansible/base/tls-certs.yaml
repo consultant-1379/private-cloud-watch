@@ -1,0 +1,24 @@
+---
+- name: Install Erixzone TLS certs
+  hosts:
+    - all
+  become: yes
+  tasks:
+    - name: Copy erixzone root CA certificate
+      copy:
+        src: certs/erixzone-ca-root.crt
+        dest: /usr/local/share/ca-certificates/erixzone-ca-root.crt
+
+    - name: Add erixzone root CA to certificates db
+      command: update-ca-certificates
+
+    - name: Copy erixzone intermediate certificates
+      copy:
+        src: certs/{{ item }}
+        dest: /etc/ssl/private/{{item}}
+      loop:
+        - "erixzone-ca-intermediate.crt"
+        - "erixzone-ca-vault.crt"
+        - "erixzone-ca-chain.crt"
+        - "erixzone-ca-root.crt"
+

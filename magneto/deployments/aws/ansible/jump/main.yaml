@@ -1,0 +1,9 @@
+---
+# This is the main jump node playbook.
+
+- name: Install host TLS certs
+  import_playbook: host-certs.yaml
+
+- name: Install jump
+  import_playbook: jump.yaml
+

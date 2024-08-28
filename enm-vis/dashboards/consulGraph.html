@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    {{ template "consulGraphHead" }}
+    </head>
+
+    <body>
+    {{ template "consulGraphNav" }}
+    <div id="graph_container" class="container-fluid">
+        <div class="query-history">
+            <i class="glyphicon glyphicon-unchecked"></i>
+            <button type="button" class="search-history" title="search previous queries">Enable query history</button>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+      <div><input class="btn btn-primary" type="submit" value="Add Graph" id="add_graph"></div>
+    </div>
+    </body>
+</html>

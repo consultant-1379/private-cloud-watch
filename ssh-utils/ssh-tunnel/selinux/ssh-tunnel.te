@@ -1,0 +1,10 @@
+module ssh-tunnel 1.0;
+
+require {
+	type unconfined_t;
+	type sshd_t;
+	class tun_socket relabelfrom;
+}
+
+#============= sshd_t ==============
+allow sshd_t unconfined_t:tun_socket relabelfrom;

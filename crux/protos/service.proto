@@ -1,0 +1,16 @@
+syntax="proto3";
+
+package cruxgen;
+
+import "heartbeat.proto";
+
+message Empty {
+}
+
+message QuitReq {
+	Timestamp delay = 1;
+}
+
+message QuitReply {
+	string message = 1;
+}

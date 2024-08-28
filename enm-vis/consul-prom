@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+
+import sys
+import time
+import json
+import prometheus_client as prc
+
+from Casbah import Casbah
+
+staticTestFile = None
+
+def log(fmt, *args):
+	print(time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), '##', fmt%tuple(args))
+
+def consulJson():
+	if staticTestFile is not None:
+		with open(staticTestFile) as fp:
+			return fp.read()
+
+	c = Casbah()
+
+	c.exch(None, 'ssh 10.2.10.10 cloud-user')
+	c.exch("cloud-user@10.2.10.10's password: ", c.pwd('cloud-user'))
+
+	prompt = '(\033\\][^\007]*\007)?'
+	prompt += r'\[cloud-user@staging01-vnflaf-services-0 ~\]\$ '
+	c.exch(prompt, 'stty -echo')
+	c.exch(prompt, 'curl http://127.0.0.1:8500/v1/agent/members')
+	c.exch(prompt, None)
+
+	jsonData = c.before
+
+	c.exch(None, 'exit') # to cas
+	c.exch(' > ', 'exit') # to ecgw
+	c.exch(' > ', 'exit') # home
+	c.close()
+
+	return jsonData
+
+
+class ConsulScraper(prc.CollectorRegistry):
+
+	def __init__(self, *args, **kwargs):
+		if 'auto_describe' not in kwargs:
+			kwargs['auto_describe'] = True
+		super().__init__(*args, **kwargs)
+		self.gConsul = prc.Gauge('consul', 'Consul member count', registry=self)
+		self.gStatus = prc.Gauge('status', 'Consul member status', ['name', ], registry=self)
+
+	def collect(self):
+		try:
+			nodes = json.loads(consulJson())
+		except json.JSONDecodeError:
+			nodes = []
+		self.gConsul.set(len(nodes))
+		for node in nodes:
+			self.gStatus.labels(node['Name']).set(node['Status'])
+		log('loaded %d nodes', len(nodes))
+		return super().collect()
+
+
+def main():
+	global staticTestFile
+	if len(sys.argv) > 1:
+		staticTestFile = sys.argv[1]
+	prc.start_http_server(8000, registry=ConsulScraper())
+	prc.start_http_server(8001)
+	log('ready')
+	while True:
+		time.sleep(60)
+
+
+if __name__ == '__main__':
+	main()

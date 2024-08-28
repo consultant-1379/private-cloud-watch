@@ -1,0 +1,17 @@
+---
+- name: Configure sshd with vault CA
+  hosts:
+    - all
+  become: yes
+  tasks:
+    - name: Copy vault sshd CA certificate
+      copy:
+        src: files/sshd/trusted-user-ca-keys.pem
+        dest: /etc/ssh/trusted-user-ca-keys.pem
+
+    - name: Add trusted user CA keys to sshd_config
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        insertafter: EOF
+        line: "\nTrustedUserCAKeys /etc/ssh/trusted-user-ca-keys.pem\n"
+

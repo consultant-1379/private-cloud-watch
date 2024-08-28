@@ -1,0 +1,94 @@
+enm-vis is comprised of three processes, two of which are key:
+consulProm and prometheus.  the third, laf-track, is a stopgap
+that maintains the host ssh keys needed by consulProm.
+see below for hints at setting up tenant information.
+
+consulProm and laf-track are in this directory.  prometheus is
+elsewhere but its visualization code (html and javascript) are in
+the subdirectories dashboards and dashboard_libs.
+
+if you are starting this facility by hand, use start-monitor
+to run (or restart) consulProm and prometheus under nohup.
+
+run-prom packages up the prometheus command-line options.
+note that our fork of prometheus supports tls.  you may
+wish to change 'web.listen-address' depending on your
+firewall environment (e.g., some ports may not be accessible).
+
+if you want to use systemd: prometheus.service is a sample unit
+file and promService is the command file that it invokes;
+promService.te is its selinux policy file.  there doesn't seem
+to be any way to parameterize unit files, so you will find
+hard-coded path names that need to be changed.
+
+a similar unit file needs to be written for consulProm.
+
+the selinux policy runs prometheus under label prom_t, but
+data still comes from the normal user file system.  it would
+be better to have read-only configuration files labeled (say)
+prom_config_t and writeable files labeled prom_data_t.
+
+consulProm is the bridge between prometheus and consul.
+consulProm expects to find host ssh keys for the laf-service nodes
+in the file specified by the '-knownhosts' command-line parameter.
+ideally, this file should be populated by an authoritative
+source (using KHupdate).  as a stopgap you can run (under nohup)
+laf-track on the consulProm log file.
+
+consulProm needs login parameters for the laf-service nodes.
+the username comes from the '-user' command-line parameter
+and defaults to 'cloud-user'.  in our proof-of-concept, the
+password comes from the file named in the PWDFILE environment
+variable.  it contains lines that should look like this:
+
+cloud-user	d0ntAskd0ntTell
+
+(the name and password are separated by a tab.)
+
+alternatively, the KEYFILES environment variable may contain a
+':'-separated list of pem-encoded ssh private keys.  finally,
+the KEYDICT variable may specify a file that lists a different
+key for each node, e.g.:
+
+cloud-user  10.0.18.10      /path/to/BMASenm01_cu_key.pem
+cloud-user  10.200.0.138    /path/to/cbrs_cu_key.pem
+
+(fields are separated by one or more spaces or tabs.)
+
+if multiple credentials are available, they are presented (to the
+responding sshd) in this order: specific key from KEYDICT;
+global key from KEYFILES; global password from PWDFILE.
+
+
+
+### getting up tenant information ###
+
+this was very ad-hoc in the proof-of-concept implementation.
+here's our procedure:
+
+1) run gen-tenants on the genie node to scrape tenant parameters.
+
+2) run get-tenants on the output of gen-tenants to get a
+   list of tenant names and corresponding vnflaf-services
+   node addresses that are reachable from the CAS;
+   sample file is "tenant-list".
+
+3) run consul-scrape-config on the output of get-tenants to make
+   a prometheus yaml file.  the comment near the top has the command
+   that runs the data collector; sample file is "consul.yaml".
+
+4) start the data collector (consulProm.go).
+
+5) start prometheus (run-prom).
+
+the dashboard javascript code queries the prometheus
+api for the set of values of the "tenant" label and
+sets up the christmas tree grid accordingly.
+
+it turned out to be useful to have a list of "expected" vm's
+for each tenant, so you can tell if any have gone missing.
+our ad-hoc procedure is:
+
+1) run gen-seds on the genie node and fetch the resulting tar file.
+
+2) run sed-it on the tar file.

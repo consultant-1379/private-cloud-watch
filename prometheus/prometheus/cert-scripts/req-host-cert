@@ -1,0 +1,57 @@
+#!/bin/sh
+
+: ${TOPLEVEL:=crux.erixzone.net}
+
+HOST=${1:-prometheus}
+OU=${2:-crux}
+
+LEAFCERT=${HOST}
+
+CNF=$LEAFCERT.$$.cnf
+
+trap "rm -f $CNF" EXIT
+
+cat >$CNF <<EoF
+[ req ]
+distinguished_name     = req_distinguished_name
+req_extensions         = extensions
+prompt                 = no
+encrypt_key            = no
+default_bits           = 2048
+default_md             = sha256
+
+[ req_distinguished_name ]
+O                      = Erixzone
+OU                     = ${OU}
+CN                     = ${HOST}.${TOPLEVEL}
+
+[ extensions ]
+basicConstraints=critical,CA:FALSE
+keyUsage=critical,digitalSignature,keyEncipherment,dataEncipherment,keyAgreement
+subjectKeyIdentifier=hash
+subjectAltName=DNS:localhost,IP:127.0.0.1
+certificatePolicies=@policies
+
+[ policies ]
+policyIdentifier="X509v3 Any Policy"
+userNotice=@notice
+
+[ notice ]
+explicitText="Plays with fire."
+
+[ signing_options ]
+sha256=
+days=365
+
+EoF
+
+umask 077
+rm -f $LEAFCERT.key $LEAFCERT.req
+
+openssl req -new -config $CNF \
+	-keyout $LEAFCERT.key -out $LEAFCERT.req
+sed '1,/\[ extensions \]/d'  $CNF >>$LEAFCERT.req
+
+[ -f $LEAFCERT.req ] && chmod a+r $LEAFCERT.req
+
+echo "Signing request is $LEAFCERT.req"

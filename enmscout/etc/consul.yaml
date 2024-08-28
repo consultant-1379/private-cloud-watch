@@ -1,0 +1,54 @@
+global:
+  # go run consulProm.go 8000 tenant-list
+  scrape_interval: 120s
+  scrape_timeout: 45s
+
+scrape_configs:
+- job_name: consul
+  scheme: http
+  static_configs:
+  - targets: [ "localhost:8000" ]
+    labels:
+      tenant: sprint
+  - targets: [ "localhost:8001" ]
+    labels:
+      tenant: charter
+  - targets: [ "localhost:8002" ]
+    labels:
+      tenant: cellcom
+  - targets: [ "localhost:8003" ]
+    labels:
+      tenant: charitonvalley
+  - targets: [ "localhost:8004" ]
+    labels:
+      tenant: carolinawest
+  - targets: [ "localhost:8005" ]
+    labels:
+      tenant: eastkentucky
+  - targets: [ "localhost:8006" ]
+    labels:
+      tenant: farmers
+      #  - targets: [ "localhost:8007" ]
+      #    labels:
+      #      tenant: genie-pipeline
+  - targets: [ "localhost:8008" ]
+    labels:
+      tenant: kingstreet
+  - targets: [ "localhost:8009" ]
+    labels:
+      tenant: nextech
+      #  - targets: [ "localhost:8010" ]
+      #    labels:
+      #      tenant: rfpsmallstaging
+      #  - targets: [ "localhost:8011" ]
+      #    labels:
+      #      tenant: staging01
+  - targets: [ "localhost:8012" ]
+    labels:
+      tenant: tbaytel
+  - targets: [ "localhost:8013" ]
+    labels:
+      tenant: comcast
+  - targets: [ "localhost:8014" ]
+    labels:
+      tenant: verizon

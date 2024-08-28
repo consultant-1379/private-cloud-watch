@@ -1,0 +1,205 @@
+syntax = "proto3";
+package cruxgen;
+
+import "ping.proto";
+import "heartbeat.proto";
+
+// Reeve is an intermediary between local user plugins
+// (which may be endpoint, client or both) and
+// Steward. Reeve maintains local keys and
+// the node's current whitelist/endpoint data.
+// Steward aggregates flockwide endpoint and public key
+// information and pushes out whitelist and endpoint
+// updates to reeve(). As such, the Reeve API has both
+// USER FUNCTIONS and STEWARD IO Functions.
+
+// USER FUNCTIONS
+//    To Add a Endpoint / Plugin:
+//    Use RegisterEndpoint(EndpointInfo)
+//    - reeve passes on to Steward
+//    - Steward maintains your Endpoint's whitelist
+
+//    To Add a Client / make keypair
+//    Use RegisterClient(ClientInfo)
+//     - reeve forwards public key to Steward
+//     - steward maintains your cache of accessible endpoints
+//    To get a list of endpoints that your client can talk to
+//    Use EndpointsUp(ClientInfo)
+
+// REGISTER/STEWARD IO Functions.
+// Wl*, Ep*, UpdatePubkeys - are restricted to Steward io only
+// Wl is whitelist
+// Ep is endpoint
+// UpdatePubkeys are public key pulls from Steward
+// WlUpdate/EpUpdate are public key whitelist entries/netID endpoint
+// pushes from Steward
+// WlState/EpState are queries from Steward about Reeve's last state
+// generally for restart/recovery
+
+service Reeve {
+	rpc PingTest (Ping) returns (Ping) {}
+	rpc Heartbeat(HeartbeatReq) returns (HeartbeatReply) {}
+
+	rpc RegisterEndpoint(EndpointInfo) returns (Acknowledgement) {}
+	rpc RegisterClient(ClientInfo) returns (Acknowledgement) {}
+	rpc EndpointsUp(EndpointRequest) returns (Endpoints) {}
+	rpc Catalog(CatalogRequest) returns (CatalogReply) {}
+
+
+	rpc UpdateCatalog(CatalogList) returns (Acknowledgement) {}
+	rpc UpdatePubkeys(SignWith) returns (PubKeysUpdate) {}
+	rpc WlState(StateId) returns (Acknowledgement) {}
+	rpc EpState(StateId) returns (Acknowledgement) {}
+	rpc WlUpdate(WlList) returns (Acknowledgement) {}
+	rpc EpUpdate(EpList) returns (Acknowledgement) {}
+
+}
+
+//  RegisterEndpoint() Args - To register an endpoint, subscribe to whitelist
+//  for eligible clients in the same horde.
+//   - filename = plugin file name.
+
+message EndpointInfo {
+	string tscreated = 1;
+	string tsmessage = 2;
+	ServiceState status = 3;
+	string nodeid = 4;
+	string netid = 5;
+	string filename = 6;
+}
+
+enum Ack {
+	UNK1 = 0;
+	WORKING = 1;
+	DONE = 2;
+	FAIL = 3;
+}
+
+
+message Acknowledgement {
+	string localuuid = 1;
+	string remoteuuid = 2;
+	int32 state = 3;
+	Ack ack = 4;
+	string ts = 5;
+	string error = 6;
+}
+
+
+// RegisterClient() Args - To register a client, make keypair, distribute public key, 
+// and subscribe to endpoints in the same horde.
+
+enum KeyStatus {
+	UNK2 = 0;
+	CURRENT = 1;
+	DEPRECATED = 2;
+	KILLED = 3;
+}
+
+message ClientInfo {
+	string nodeid = 1;
+	string keyid = 2;
+	string keyjson = 3;
+	KeyStatus status = 4;
+}
+
+// EndpointsUp() Args - USE to get a list of enpoints that your client can access,
+// fulfilled/maintained by subscription to steward (i.e. pushes to reeve)
+
+message EndpointRequest {
+	string nodeid = 1;
+	string keyid = 2;
+	int32 limit = 3;
+}
+
+message EpInfo {
+	string nodeid = 1;
+	string netid = 2;
+	string priority = 3;
+	int32 rank = 4;
+}
+
+message Endpoints {
+	repeated EpInfo list = 1;
+	string error = 2;
+}
+
+// Catalog() Args - USE to get a catalogue of services in flock/horde available
+// to the grpcsignatures client specified by parameters. 
+message CatalogRequest {
+	string nodeid = 1;
+	string keyid = 2;
+}
+
+// CatalogInfo provides service information + 1 reachable, operating, instance of service.
+// nodeid - broken into blocname, hordename, servicname fulfils generic elements
+// of the request.  netid - provides the operating instance of servicerev. filename
+// provides the plugin information for the servicerev.
+message CatalogInfo {
+	string nodeid = 1;
+	string netid = 2;
+	string filename = 3;
+}
+
+message CatalogReply {
+	repeated CatalogInfo list = 1;
+	string error = 2;
+}
+
+
+message RuleInfo {
+	string rule = 1;
+	string horde = 2;
+	string from = 3;
+	string to = 4;
+	string owner = 5;
+}
+
+
+message CatalogList {
+	repeated CatalogInfo list = 1;
+	repeated RuleInfo allowed = 2;
+	int32 state = 3;
+}
+
+
+// UpdatePubkeys() Args - register/steward callback to pull reeve's current/deprecate/killed
+// public keys for all registered clients - uses reverse signatures.
+
+message SignWith {
+	string keyid = 1;
+}
+
+message PubKeysUpdate {
+	string keyid = 1;
+	string date = 2;
+	string signature = 3;
+	string current = 4;
+	string deprecated = 5;
+	string killed = 6;
+	string error = 7;
+}
+
+
+// WlState(), EpState(), WlUpdate()) EpUpdate() Args -
+// for subcription push calls arriving from steward()
+
+message StateId {
+	int32 state = 1;
+}
+
+message WlPubKey {
+	string json = 1;
+}
+
+message WlList {
+	int32 state = 1;
+	repeated WlPubKey add = 2;
+	repeated WlPubKey del = 3;
+}
+
+message EpList {
+	int32 state = 1;
+	repeated EpInfo add = 2;
+	repeated EpInfo del = 3;
+}

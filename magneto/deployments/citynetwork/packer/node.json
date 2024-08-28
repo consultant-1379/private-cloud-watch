@@ -1,0 +1,22 @@
+{
+    "variables": {
+        "host_name": "node"
+    },
+    "builders": [
+        {
+            "type": "openstack",
+            "source_image": "cd498f49-6766-4bba-82bd-5433d3656b84",
+            "flavor": "1C-1GB",
+            "ssh_username": "ubuntu",
+            "image_name": "{{user `host_name`}}-{{isotime \"2006-01-02-1504\"}}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "ansible",
+            "user": "ubuntu",
+            "playbook_file": "../ansible/base/main.yaml",
+            "extra_arguments": [ "--extra-vars", "host_name={{user `host_name`}}" ]
+        }
+    ]
+}

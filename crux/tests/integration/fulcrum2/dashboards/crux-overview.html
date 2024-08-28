@@ -1,0 +1,52 @@
+{{ template "cruxhead" . }}
+
+{{ template "prom_content_head" . }}
+  <h1>Node Overview - {{ reReplaceAll "(.*://)?([^:/]+)?(:\\d+)?(/.*)?" "$2" .Params.instance }}</h1>
+
+  <h3>Flock Msg Rate</h3>
+  <div id="flockMsgGraph"></div>
+  <script>
+  new PromConsole.Graph({
+    node: document.querySelector("#flockMsgGraph"),
+
+    expr: "sum(rate(key_count{instance='{{ .Params.instance }}'}[1m]))",
+    name: "msgRate",
+
+    renderer: 'area',
+    yAxisFormatter: PromConsole.NumberFormatter.humanizeNoSmallPrefix,
+    yHoverFormatter: PromConsole.NumberFormatter.humanizeNoSmallPrefix,
+    yTitle: 'Flock Msgs [/sec]'
+  })
+  </script>
+
+  <h3>CPU Usage</h3>
+  <div id="cpuGraph"></div>
+  <script>
+  new PromConsole.Graph({
+    node: document.querySelector("#cpuGraph"),
+
+    expr: "100*rate(process_cpu_seconds_total{instance='{{ .Params.instance }}'}[1m])",
+    name: "cpuUsage",
+
+    renderer: 'area',
+    yAxisFormatter: PromConsole.NumberFormatter.humanizeNoSmallPrefix,
+    yHoverFormatter: PromConsole.NumberFormatter.humanizeNoSmallPrefix,
+    yTitle: 'CPU Usage [%]'
+  })
+  </script>
+
+{{ template "prom_right_table_head" }}
+  <tr><th colspan="2">Overview</th></tr>
+  <tr>
+    <td>Flock Msg Rate</td>
+    <td>{{ template "prom_query_drilldown" (args (printf "sum(rate(key_count{instance='%s'}[1m]))" .Params.instance) "/sec"  "printf.1f") }}</td>
+  </tr>
+  <tr>
+    <td>CPU Usage</td>
+    <td>{{ template "prom_query_drilldown" (args (printf "100*rate(process_cpu_seconds_total{instance='%s'}[1m])" .Params.instance) "%"  "printf.1f") }}</td>
+  </tr>
+{{ template "prom_right_table_tail" }}
+
+{{ template "prom_content_tail" . }}
+
+{{ template "tail" }}

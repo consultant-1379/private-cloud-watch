@@ -1,0 +1,52 @@
+syntax="proto3";
+
+package cruxgen;
+
+import "heartbeat.proto";
+import "ping.proto";
+import "err.proto";
+import "service.proto";
+
+service Genghis {
+	rpc ClientHorde(ClientHordeReq) returns (HordeReply) {}
+	rpc AllocHorde(AllocHordeReq) returns (AllocHordeReply) {}
+	rpc UnAllocHorde(ClientHordeReq) returns (AllocHordeReply) {}
+	rpc Navail(Empty) returns (NavailReply) {}
+	rpc Flock(FlockPost) returns (Empty) {}
+	rpc PingTest (Ping) returns (Ping) {}
+ 	rpc Quit(QuitReq) returns (QuitReply) {}
+}
+
+message ClientHordeReq {
+	string horde = 1;
+}
+
+message NavailReply {
+	int32 total = 1;
+	int32 avail = 2;
+}
+
+message AllocHordeReq {
+	string who = 1;
+	string name = 2;
+	int32 n = 3;
+	Err err = 4;
+}
+
+message AllocHordeReply {
+	Err err = 1;
+}
+
+message HordeReply {
+	string name = 1;
+	repeated string nodes = 2;
+	int32 want = 3;
+	Timestamp start = 4;
+	string req = 5;
+	Err err = 6;
+}
+
+message FlockPost {
+	string name = 1;
+	repeated string nodes = 2;
+}

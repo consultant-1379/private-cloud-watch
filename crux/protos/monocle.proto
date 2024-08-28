@@ -1,0 +1,24 @@
+syntax="proto3";
+package cruxgen;
+
+import "google/api/annotations.proto";
+
+
+service Monocle {
+        rpc GetDump(GetDumpRequest) returns (GetDumpResponse) {
+          option (google.api.http) = {
+               post: "/v1/monocle/dump"
+               body: "*"
+               };
+        }
+}
+
+message GetDumpRequest {
+	int32 level = 1;
+	string subsystems = 2;
+}
+
+message GetDumpResponse {
+	bool success = 1;
+        string data = 2; 
+}

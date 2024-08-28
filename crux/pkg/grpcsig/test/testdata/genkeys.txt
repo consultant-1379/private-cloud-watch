@@ -1,0 +1,8 @@
+Commands I used to generate these test keys.
+No passphrases are provided.
+
+$ ssh-keygen -E md5 -f testdata/test-key-ed25519 -t ed25519 -C "test-ed25519-key"
+$ ssh-keygen -E md5 -f testdata/test-key-ecdsa -t ecdsa -b 521 -C "test-ecdsa-key"
+$ ssh-keygen -E md5 -f testdata/test-key-rsa -t rsa -C "test-rsa-key"
+
+

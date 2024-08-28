@@ -1,0 +1,24 @@
+#!/bin/sh
+
+ps ax | grep '[p]rometheus' | sed 's/ *//; s/ .*//' |
+while read i
+do
+	echo prometheus $i
+	kill -INT $i
+	sleep 2
+done
+
+ps ax | grep '[c]onsulProm' | sed 's/ *//; s/ .*//' |
+while read i
+do
+	echo consulProm $i
+	kill -9 $i
+	sleep 2
+done
+
+PWDFILE=~/.ssh/pwds export PWDFILE
+nohup ./consulProm -direct -knownhosts tenant-known_hosts \
+	-p 8000 tenant-list tenant-nodes >>consulProm.log 2>&1 &
+unset PWDFILE
+
+nohup ./run-prom >>prometheus.log 2>&1 &

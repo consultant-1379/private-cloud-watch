@@ -1,0 +1,45 @@
+version = "v0.2"
+	job "f99" {
+		command = "sh -c 'cd /tmp; organza watch --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 --n 1'"
+		wait = true
+	}
+	job "f1" {
+		command = "ssh-agent sh -c 'mkdir /tmp/cache; muster0 /tmp/cache /crux/bin/plugin_* | sh; cd /tmp; sleep 6; organza flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 --hordes sharks:2:jets:'"
+		output "/tmp/.muck/steward/steward.db" {
+                        dst = "steward-f1"
+                }
+                output "/tmp/.muck/whitelist.db" {
+                        dst = "whitelist-f1"
+                }
+		wait = true
+	}
+	job "f2" {
+		command = "ssh-agent sh -c 'mkdir /tmp/cache; muster0 /tmp/cache /crux/bin/plugin_* | sh; cd /tmp; sleep 6; organza flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 --hordes sharks:2:jets:'"
+		output "/tmp/.muck/steward/steward.db" {
+                        dst = "steward-f2"
+                }
+                output "/tmp/.muck/whitelist.db" {
+                        dst = "whitelist-f2"
+                }
+		wait = true
+	}
+	job "f3" {
+		command = "ssh-agent sh -c 'mkdir /tmp/cache; muster0 /tmp/cache /crux/bin/plugin_* | sh; cd /tmp; sleep 6; organza flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 --hordes sharks:2:jets:'"
+		output "/tmp/.muck/steward/steward.db" {
+                        dst = "steward-f3"
+                }
+                output "/tmp/.muck/whitelist.db" {
+                        dst = "whitelist-f3"
+                }
+		wait = true
+	}
+	job "f4" {
+		command = "ssh-agent sh -c 'mkdir /tmp/cache; muster0 /tmp/cache /crux/bin/plugin_* | sh; cd /tmp; sleep 6; organza flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 --hordes sharks:2:jets:'"
+		output "/tmp/.muck/steward/steward.db" {
+                        dst = "steward-f4"
+                }
+                output "/tmp/.muck/whitelist.db" {
+                        dst = "whitelist-f4"
+                }
+		wait = true
+	}

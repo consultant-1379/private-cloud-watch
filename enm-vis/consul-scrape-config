@@ -1,0 +1,51 @@
+#!/usr/bin/python
+
+# run on the output of get-tenants to make
+# a prometheus yaml file.
+# the comment near the top is the command
+# to run for the data collector.
+
+import sys
+
+port = 8000
+tenants = []
+
+if len(sys.argv) < 2:
+	print("usage: %s tenant-list" % sys.argv[0])
+	sys.exit(127)
+
+with open(sys.argv[1]) as fp:
+	for l in fp:
+		name, addr = l.strip().split()
+		if name == '#port':
+			port = int(addr)
+		elif name.startswith('#'):
+			pass
+		else:
+			tenants.append((name, addr))
+
+#print tenants
+
+yaml_preamble = """global:
+  # %s
+  scrape_interval: 120s
+  scrape_timeout: 45s
+
+scrape_configs:
+- job_name: consul
+  scheme: http
+  static_configs:
+"""
+
+target_fmt = """  - targets: [ localhost:%d ]
+    labels:
+      tenant: %s
+"""
+
+cmd = 'go run consulProm.go %d %s' % (port, sys.argv[1])
+
+sys.stdout.write(yaml_preamble % cmd)
+
+for name, addr in tenants:
+	sys.stdout.write(target_fmt % (port, name))
+	port += 1

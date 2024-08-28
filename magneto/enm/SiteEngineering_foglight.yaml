@@ -1,0 +1,452 @@
+parameter_defaults:
+  dynamic_ip_range_start: 10.0.1.1
+  dynamic_ip_range_end: 10.0.5.255
+  dynamic_ipv6_range_start:
+  dynamic_ipv6_range_end:
+  dynamic_external_start: 192.168.1.2
+  dynamic_external_end: 192.168.1.254
+  deployment_id: foglight
+  enm_internal_network_name: enm-internal
+  enm_external_network_name: enm-external
+  enm_external_security_group_name: enm-external
+  enm_internal_security_group_name: enm-internal
+  enm_laf_security_group_name: enm-laf
+  key_name: enm
+  use_config_drive:
+  server_group_policy:
+  external_subnet: 192.168.1.0/24
+  external_gateway: 192.168.1.1
+  external_netmask: 255.255.255.0
+  internal_interface: eth0
+  external_interface: eth1
+  internal_subnet: 10.0.1.0/16
+  internal_netmask: 255.255.0.0
+  lvs_external_PM_vrrp_id:
+  lvs_external_CM_vrrp_id:
+  lvs_external_FM_vrrp_id:
+  external_subnet_ipv6:
+  external_gateway_ipv6:
+  internal_subnet_ipv6:
+  ip_version: v4
+
+  enm_laf_1_ip_external: 192.168.1.10
+  enm_laf_1_ipv6_external:
+  enm_laf_1_ip_internal: 10.0.1.247
+  vnflaf_db_1_ip_external: 192.168.1.11
+  vnflaf_db_1_ipv6_external:
+  vnflaf_db_1_ip_internal: 10.0.1.248
+  laf_url:
+  cloudManagerTenantName: tenant
+  cloudManagerUserName: cloudman
+  cloudManagerUserPassword: cloudman
+  cloudManagerRestInterfaceBaseURL: http://this-doesnt-work-intentionally:5000/v3.0
+  servicesImage: ERICrhelvnflafimage_CXP9032490-3.5.5.qcow2
+  vnflaf_db_image: ERICrhelpostgresimage_CXP9032491-2.5.3.qcow2
+  storage_type: cinder
+
+  mysql_volume_size: 8
+  opendj_volume_size: 1
+  jms_volume_size: 2
+  postgres_volume_size: 8
+  solr_volume_size: 10
+  elasticsearch_volume_size: 100
+  elasticsearch_max_log_data_in_gb: 80
+  elasticserach_log_retention_in_day: 7
+  service_registry_volume_size: 1
+  sentinel_volume_size: 1
+  repovol_size: 12
+  enm_isovol_size: 15
+  rhel6_isovol_size: 5
+  rhel6_updates_isovol_size: 5
+  httpd_createrepo_isovol_size: 1
+  esmon_volume_size: 2
+  vnflafdb_volume_size: 20
+  neo4j_volume_size: 20
+  models_volume_size: 1
+  nfsalex_volume_size: 1
+  nfsamos_volume_size: 5
+  nfsbatch_volume_size: 10
+  nfsconfigmgt_volume_size: 10
+  nfscron_volume_size: 1
+  nfscustom_volume_size: 1
+  nfsdata_volume_size: 10
+  nfsddcdata_volume_size: 5
+  nfsdlms_volume_size: 5
+  nfshcdumps_volume_size: 10
+  nfshome_volume_size: 20
+  nfsmdt_volume_size: 10
+  nfsnorollback_volume_size: 5
+  nfsnetlog_volume_size: 2
+  nfspm_volume_size: 5
+  nfspmlinks_volume_size: 5
+  nfspmul_volume_size: 1
+  nfssmrs_volume_size: 5
+  nfstfd_volume_size: 10
+  nfsupgind_volume_size: 4
+
+  nfscustom_volume_backup:
+  nfsdlms_volume_backup:
+  nfsnetlog_volume_backup:
+  nfsnorollback_volume_backup:
+  nfspm_volume_backup:
+  nfspmlinks_volume_backup:
+  nfspmul_volume_backup:
+  nfstfd_volume_backup:
+  nfshcdumps_volume_backup:
+
+  flavor_2vC2M: c2m2
+  flavor_2vC4M: c2m4
+  flavor_2vC6M: c2m8
+  flavor_2vC8M: c2m8
+  flavor_models_2vC8M: c2m8
+  flavor_4vC4M: c2m4
+  flavor_4vC6M: c2m8
+  flavor_4vC8M: c2m8
+  flavor_4vC12M: c4m16
+  flavor_4vC32M: c4m16
+  flavor_6vC6M: c8m16
+  flavor_8vC12M: c8m16
+  flavor_8vC20M: c8m16
+  flavor_8vC24M: c8m16
+  flavor_16vC80M: c8m16
+  flavor_16vC96M: c8m16
+  flavor_16vC100M: c8m16
+
+  flavor_vnflaf_db: c2m2
+  flavor_vnflaf: c2m2
+
+  enm_iso_image: ERICenm_CXP9027091-1.49.112.iso
+  enm_rhel7_base_image_name: ERICrhel7baseimage_CXP9032719-1.32.1.qcow2
+  enm_rhel6_base_image_name: ERICrhel6baseimage_CXP9031559-2.31.4.qcow2
+  enm_rhel6_jboss_image_name: ERICrhel6jbossimage_CXP9031560-2.42.3.qcow2
+  rhel6_updates_iso_image: RHEL_OS_Patch_Set_CXP9026826-1.25.1.iso
+  rhel6_iso_image: RHEL_Media_CXP9026759-1.3.1.iso
+  httpd_createrepo_iso_image: httpd_createrepo.iso
+
+  dns_domainName: openstacklocal
+  nameserverA: 136.225.128.195
+  nameserverB: 136.225.128.194
+  ntp_external_servers:
+  timezone: Etc/UTC
+  neo4j_admin_user_password:
+  neo4j_dps_user_password:
+  neo4j_reader_user_password:
+  postgresql01_admin_password:
+  EMAIL_DOMAIN:
+
+  service_registry_datacenter:
+  service_registry_domain:
+  service_registry_dns_port:
+
+  accesscontrol_instances: 1
+  accesscontrol_internal_ip_list: 10.0.1.249
+
+  amos_instances: 1
+  amos_internal_ip_list: 10.0.1.250
+  amos_external_ip_list: 192.168.1.12
+  amos_external_ipv6_list:
+
+  apserv_instances: 1
+  apserv_internal_ip_list: 10.0.1.251
+
+  bnsiserv_instances: 1
+  bnsiserv_internal_ip_list: 10.0.1.252
+  bnsiserv_internal_ipv6_list:
+
+  cls_instances: 1
+  cls_internal_ip_list : 10.0.1.253
+
+  cmevents_instances: 1
+  cmevents_internal_ip_list: 10.0.1.254
+
+  cmserv_instances: 1
+  cmserv_internal_ip_list: 10.0.2.1
+
+  comecimpolicy_instances: 1
+  comecimpolicy_internal_ip_list: 10.0.2.2
+
+  dchistory_instances: 1
+  dchistory_internal_ip_list: 10.0.2.3
+
+  dlms_instances: 1
+  dlms_internal_ip_list: 10.0.2.4
+
+  elasticsearch_instances: 1
+  elasticsearch_internal_ip_list: 10.0.2.5
+
+  elementmanager_instances: 1
+  elementmanager_internal_ip_list: 10.0.2.6
+  elementmanager_external_ip_list: 192.168.1.13
+  elementmanager_external_ipv6_list:
+
+  emp_instances: 1
+  emp_external_ip_list: 192.168.1.14
+
+  esmon_instances: 1
+  esmon_internal_ip_list: 10.0.2.7
+  esmon_hostname:
+  esmon_external_ip_list: 192.168.1.15
+  esmon_fqdn:
+
+  eventbasedclient_instances: 1
+  eventbasedclient_internal_ip_list: 10.0.2.8
+
+  flsserv_instances: 1
+  flsserv_internal_ip_list: 10.0.2.9
+
+  fmalarmprocessing_instances: 1
+  fmalarmprocessing_internal_ip_list: 10.0.2.10
+
+  fmhistory_instances: 1
+  fmhistory_internal_ip_list: 10.0.2.11
+
+  fmserv_instances: 1
+  fmserv_internal_ip_list: 10.0.2.12
+
+  fmx_instances: 1
+  fmx_internal_ip_list: 10.0.2.13
+  fmx_internal_ipv6_list:
+
+  haproxysb_instances: 1
+  haproxysb_internal_ip_list: 10.0.2.14
+  haproxysb_external_ip_list: 192.168.1.16
+  haproxysb_external_ipv6_list:
+
+  haproxy_instances: 1
+  haproxy_internal_ip_list: 10.0.2.15
+  haproxy_external_ip_list: 192.168.1.17
+  haproxy_external_ipv6_list:
+
+  haproxyint_instances: 1
+  haproxyint_internal_ip_list: 10.0.2.16
+
+  httpd_instances: 1
+  httpd_internal_ip_list: 10.0.2.17
+  httpd_fqdn:
+
+  impexpserv_instances: 1
+  impexpserv_internal_ip_list: 10.0.2.18
+
+  ipsmserv_instances: 1
+  ipsmserv_internal_ip_list: 10.0.2.19
+
+  itservices_instances: 1
+  itservices_internal_ip_list: 10.0.2.20
+  itservices_external_ip_list: 192.168.1.18
+  itservices_external_ipv6_list:
+
+  jms_instances: 1
+  jms_internal_ip_list: 10.0.2.21
+
+  kpiserv_instances: 1
+  kpiserv_internal_ip_list: 10.0.2.22
+
+  lcmserv_instances: 1
+  lcmserv_internal_ip_list: 10.0.2.23
+
+  lvsrouter_instances: 1
+  lvsrouter_internal_ip_list: 10.0.2.24
+  lvsrouter_external_ip_list: 192.168.1.19
+  lvsrouter_external_ipv6_list:
+
+  medrouter_instances: 1
+  medrouter_internal_ip_list: 10.0.2.25
+
+  models_instances: 1
+  models_internal_ip_list: 10.0.2.26
+
+  msap_instances: 1
+  msap_internal_ip_list: 10.0.2.27
+  msap_internal_ipv6_list:
+  msap_external_ipv6_list:
+
+  mscm_instances: 1
+  mscm_internal_ip_list: 10.0.2.28
+  mscm_internal_ipv6_list:
+  mscm_external_ipv6_list:
+
+  mscmce_instances: 1
+  mscmce_internal_ip_list: 10.0.2.29
+  mscmce_internal_ipv6_list:
+  mscmce_external_ipv6_list:
+
+  mscmip_instances: 1
+  mscmip_internal_ip_list: 10.0.2.30
+  mscmip_internal_ipv6_list:
+  mscmip_external_ipv6_list:
+
+  msfm_instances: 1
+  msfm_internal_ip_list: 10.0.2.31
+  msfm_internal_ipv6_list:
+  msfm_external_ipv6_list:
+
+  msnetlog_instances: 1
+  msnetlog_internal_ip_list: 10.0.2.32
+  msnetlog_internal_ipv6_list:
+  msnetlog_external_ipv6_list:
+
+  mspm_instances: 1
+  mspm_internal_ip_list: 10.0.2.33
+  mspm_internal_ipv6_list:
+  mspm_external_ipv6_list:
+
+  mspmip_instances: 1
+  mspmip_internal_ip_list: 10.0.2.34
+  mspmip_internal_ipv6_list:
+  mspmip_external_ipv6_list:
+
+  mssnmpcm_instances: 1
+  mssnmpcm_internal_ip_list: 10.0.2.35
+  mssnmpcm_internal_ipv6_list:
+  mssnmpcm_external_ipv6_list:
+
+  mssnmpfm_instances: 1
+  mssnmpfm_internal_ip_list: 10.0.2.36
+  mssnmpfm_internal_ipv6_list:
+  mssnmpfm_external_ipv6_list:
+
+  mysql_instances: 1
+  mysql_internal_ip_list: 10.0.2.37
+
+  nbalarmirp_instances: 1
+  nbalarmirp_internal_ip_list: 10.0.2.38
+  nbalarmirp_external_ip_list: 192.168.1.20
+  nbalarmirp_external_ipv6_list:
+
+  neo4j_instances: 3
+  neo4j_internal_ip_list: 10.0.2.39,10.0.2.40,10.0.2.41
+  neo4j_cluster:
+  neo4j_1_ip_internal: 10.0.2.39
+  neo4j_2_ip_internal: 10.0.2.40
+  neo4j_3_ip_internal: 10.0.2.41
+
+  netex_instances: 1
+  netex_internal_ip_list: 10.0.2.42
+
+  nfspm_instances: 2
+  nfspm_external_ip_list: 192.168.1.21,192.168.1.22
+  nfspm_external_ipv6_list:
+
+  nfspmlinks_instances: 1
+  nfspmlinks_external_ip_list: 192.168.1.23
+  nfspmlinks_external_ipv6_list:
+
+  nfsnorollback_instances: 1
+
+  nfssmrs_instances: 1
+
+  nfscommon_instances: 1
+
+  nodecli_instances: 1
+  nodecli_internal_ip_list: 10.0.2.43
+  nodecli_internal_ipv6_list:
+
+  nodemigration_instances: 1
+  nodemigration_internal_ip_list: 10.0.2.44
+  nodemigration_internal_ipv6_list:
+
+  opendj_instances: 2
+  opendj_internal_ip_list: 10.0.2.45,10.0.2.46
+
+  openidm_instances: 1
+  openidm_internal_ip_list: 10.0.2.47
+
+  pkiraserv_instances: 1
+  pkiraserv_internal_ip_list: 10.0.2.48
+
+  pmrouterpolicy_instances: 1
+  pmrouterpolicy_internal_ip_list: 10.0.2.49
+
+  pmserv_instances: 1
+  pmserv_internal_ip_list: 10.0.2.50
+
+  postgres_instances: 1
+  postgres_internal_ip_list: 10.0.2.51
+
+  repo_instances: 1
+
+  said_instances: 1
+  said_internal_ip_list: 10.0.2.52
+
+  scripting_instances: 1
+  scripting_internal_ip_list: 10.0.2.53
+  scripting_external_ip_list: 192.168.1.24
+  scripting_external_ipv6_list:
+
+  secserv_instances: 1
+  secserv_internal_ip_list: 10.0.2.54
+  secserv_internal_ipv6_list:
+
+  sentinel_instances: 1
+  sentinel_internal_ip_list: 10.0.2.55
+  vm_name_sentinel:
+
+  serviceregistry_instances: 1
+  serviceregistry_internal_ip_list: 10.0.2.56
+
+  smrs_instances: 1
+  smrs_internal_ip_list: 10.0.2.57
+  smrs_internal_ipv6_list:
+  smrs_external_ipv6_list:
+
+  shmcoreserv_instances: 1
+  shmcoreserv_internal_ip_list: 10.0.2.58
+
+  shmserv_instances: 1
+  shmserv_internal_ip_list: 10.0.2.59
+
+  solr_instances: 1
+  solr_internal_ip_list: 10.0.2.60
+
+  sps_instances: 1
+  sps_internal_ip_list: 10.0.2.61
+
+  sso_instances: 2
+  sso_internal_ip_list: 10.0.2.62,10.0.2.63
+
+  supervc_instances: 1
+  supervc_internal_ip_list: 10.0.2.64
+
+  uiserv_instances: 1
+  uiserv_internal_ip_list: 10.0.2.65
+
+  visinamingnb_instances: 1
+  visinamingnb_internal_ip_list: 10.0.2.66
+  visinamingnb_external_ip_list: 192.168.1.25
+  visinamingnb_external_ipv6_list:
+
+  visinamingsb_instances: 1
+  visinamingsb_internal_ip_list: 10.0.2.67
+  visinamingsb_external_ip_list: 192.168.1.26
+  visinamingsb_external_ipv6_list:
+
+  wpserv_instances: 1
+  wpserv_internal_ip_list: 10.0.2.68
+
+  svc_PM_vip_external_ip_address: 192.168.1.27
+  svc_PM_vip_external_ipv6_address:
+  svc_PM_vip_internal: 10.0.2.69
+  svc_PM_ipv6_vip_internal:
+  svc_FM_vip_external_ip_address: 192.168.1.28
+  svc_FM_vip_external_ipv6_address:
+  svc_FM_vip_internal: 10.0.2.70
+  svc_FM_ipv6_vip_internal:
+  svc_CM_vip_external_ip_address: 192.168.1.29
+  svc_CM_vip_external_ipv6_address:
+  svc_CM_vip_internal: 10.0.2.71
+  svc_CM_ipv6_vip_internal:
+  svc_PM_vip_to_fip:
+  svc_FM_vip_to_fip:
+  svc_CM_vip_to_fip:
+
+  PKI_EntityProfile_DN_COUNTRY_NAME:
+  PKI_EntityProfile_DN_ORGANIZATION:
+  PKI_EntityProfile_DN_ORGANIZATION_UNIT:
+  certificatesRevListDistributionPointServiceIpv4Enable:
+  certificatesRevListDistributionPointServiceIpv6Enable:
+  certificatesRevListDistributionPointServiceDnsEnable:
+  publicKeyInfraRegAutorithyPublicServerName:
+
+  SSO_COOKIE_DOMAIN:
+  COM_INF_LDAP_ROOT_SUFFIX:
+

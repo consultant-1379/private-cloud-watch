@@ -1,0 +1,168 @@
+{{ define "consulGraphHead" }}
+{{- $buildVersion := "a4db8faff59e61630cd0e694c2cea26d75569db4" -}}
+{{- $pageTitle := "Consul Member History" -}}
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="robots" content="noindex,nofollow">
+        <title>{{ $pageTitle }}</title>
+        <link rel="shortcut icon" href="{{ pathPrefix }}/static/img/favicon.ico?v={{ $buildVersion }}">
+        <script src="{{ pathPrefix }}/static/vendor/js/jquery-3.3.1.min.js?v={{ $buildVersion }}"></script>
+        <script src="{{ pathPrefix }}/static/vendor/js/popper.min.js?v={{ $buildVersion }}"></script>
+        <script src="{{ pathPrefix }}/static/vendor/bootstrap-4.3.1/js/bootstrap.min.js?v={{ $buildVersion }}"></script>
+
+        <link type="text/css" rel="stylesheet" href="{{ pathPrefix }}/static/vendor/bootstrap-4.3.1/css/bootstrap.min.css?v={{ $buildVersion }}">
+        <link type="text/css" rel="stylesheet" href="{{ pathPrefix }}/static/css/prometheus.css?v={{ $buildVersion }}">
+        <link type="text/css" rel="stylesheet" href="{{ pathPrefix }}/static/vendor/bootstrap4-glyphicons/css/bootstrap-glyphicons.min.css?v={{ $buildVersion }}">
+
+        <script>
+            var PATH_PREFIX = "{{ pathPrefix }}";
+            var BUILD_VERSION = "{{ $buildVersion }}";
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip()
+            })
+        </script>
+    <link type="text/css" rel="stylesheet" href="{{ pathPrefix }}/static/vendor/rickshaw/rickshaw.min.css?v={{ $buildVersion }}">
+    <link type="text/css" rel="stylesheet" href="{{ pathPrefix }}/static/vendor/eonasdan-bootstrap-datetimepicker/bootstrap-datetimepicker.min.css?v={{ $buildVersion }}">
+
+    <script src="{{ pathPrefix }}/static/vendor/rickshaw/vendor/d3.v3.js?v={{ $buildVersion }}"></script>
+    <script src="{{ pathPrefix }}/static/vendor/rickshaw/vendor/d3.layout.min.js?v={{ $buildVersion }}"></script>
+    <script src="{{ pathPrefix }}/static/vendor/rickshaw/rickshaw.min.js?v={{ $buildVersion }}"></script>
+    <script src="{{ pathPrefix }}/static/vendor/moment/moment.min.js?v={{ $buildVersion }}"></script>
+    <script src="{{ pathPrefix }}/static/vendor/moment/moment-timezone-with-data.min.js?v={{ $buildVersion }}"></script>
+    <script src="{{ pathPrefix }}/static/vendor/eonasdan-bootstrap-datetimepicker/bootstrap-datetimepicker.min.js?v={{ $buildVersion }}"></script>
+    <script src="{{ pathPrefix }}/static/vendor/bootstrap3-typeahead/bootstrap3-typeahead.min.js?v={{ $buildVersion }}"></script>
+    <script src="{{ pathPrefix }}/static/vendor/fuzzy/fuzzy.js?v={{ $buildVersion }}"></script>
+
+    <script src="{{ pathPrefix }}/static/vendor/mustache/mustache.min.js?v={{ $buildVersion }}"></script>
+    <script src="{{ pathPrefix }}/static/vendor/js/jquery.selection.js?v={{ $buildVersion }}"></script>
+    <!-- <script src="{{ pathPrefix }}/static/vendor/js/jquery.hotkeys.js?v={{ $buildVersion }}"></script> -->
+
+    <script src="{{ pathPrefix }}/static/js/graph/index.js?v={{ $buildVersion }}"></script>
+
+    <script id="graph_template" type="text/x-handlebars-template"></script>
+
+    <link type="text/css" rel="stylesheet" href="{{ pathPrefix }}/static/css/graph.css?v={{ $buildVersion }}">
+    <script>
+var MemberStatus = [ "Missing", "Alive", "Leaving", "Left", "Failed" ];
+var MemberStatusColors = [ "#000000", "#00ff00", "#ffff00", "#0000ff", "#ff0000" ];
+
+Prometheus.Graph.prototype.metricToColor = function(labels) {
+   for (var label in labels) {
+     var val = labels[label]
+     if (label == "consulStatus" && val >= 0 && val < MemberStatusColors.length) {
+       return MemberStatusColors[val]
+     }
+   }
+   return null;
+};
+
+// to get our color scheme, we override prototypes from index.js
+
+Prometheus.Graph.prototype.metricToTsName = function(labels) {
+  var tsName = (labels.__name__ || '') + "{";
+  var labelStrings = [];
+   for (var label in labels) {
+     if (label != "__name__") {
+       var val = labels[label]
+       if (label == "consulStatus" && val >= 0 && val < MemberStatus.length) {
+         val = val + ": " + MemberStatus[val]
+       }
+       labelStrings.push(label + "=\"" + val + "\"");
+     }
+   }
+  tsName += labelStrings.join(",") + "}";
+  return tsName;
+};
+
+Prometheus.Graph.prototype.transformData = function(json) {
+  var self = this;
+  var palette = new Rickshaw.Color.Palette();
+  if (json.resultType != "matrix") {
+    self.showError("Result is not of matrix type! Please enter a correct expression.");
+    return [];
+  }
+  var data = json.result.map(function(ts) {
+    var name;
+    var labels;
+    if (ts.metric === null) {
+      name = "scalar";
+      labels = {};
+    } else {
+      name = escapeHTML(self.metricToTsName(ts.metric));
+      labels = ts.metric;
+    }
+    return {
+      name: name,
+      labels: labels,
+      data: ts.values.map(function(value) {
+        return {
+          x: value[0],
+          y: self.parseValue(value[1])
+        };
+      }),
+      color: self.metricToColor(ts.metric) || palette.color()
+    };
+  });
+  data.forEach(function(s) {
+    // Insert nulls for all missing steps.
+    var newSeries = [];
+    var pos = 0;
+    for (var t = self.params.start; t <= self.params.end; t += self.params.step) {
+      // Allow for floating point inaccuracy.
+      if (s.data.length > pos && s.data[pos].x < t + self.params.step / 100) {
+        newSeries.push(s.data[pos]);
+        pos++;
+      } else {
+        newSeries.push({x: t, y: null});
+      }
+    }
+    s.data = newSeries;
+  });
+  return data;
+}
+    </script>
+{{end}}
+
+{{ define "consulGraphNav" }}
+        <nav class="navbar fixed-top navbar-expand-sm navbar-dark bg-dark">
+            <div class="container-fluid">
+
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#nav-content" aria-expanded="false" aria-controls="nav-content" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                    <!--span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span-->
+                </button>
+
+                <a class="navbar-brand" href="{{ pathPrefix }}/">Prometheus</a>
+
+
+                <div id="nav-content" class="navbar-collapse collapse">
+                    <ul class="navbar-nav">
+                        {{- /*
+                        {{$consoles := consolesPath}}
+                        {{if $consoles}}
+                        <li class="nav-item"><a class="nav-link" href="{{$consoles}}">Consoles</a></li>
+                        {{ end }}
+                        */ -}}
+                        <li class="nav-item"><a class="nav-link" href="{{ pathPrefix }}/alerts">Alerts</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ pathPrefix }}/graph">Graph</a></li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Status <span class="caret"></span></a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{{ pathPrefix }}/status">Runtime &amp; Build Information</a>
+                                <a class="dropdown-item" href="{{ pathPrefix }}/flags">Command-Line Flags</a>
+                                <a class="dropdown-item" href="{{ pathPrefix }}/config">Configuration</a>
+                                <a class="dropdown-item" href="{{ pathPrefix }}/rules">Rules</a>
+                                <a class="dropdown-item" href="{{ pathPrefix }}/targets">Targets</a>
+                                <a class="dropdown-item" href="{{ pathPrefix }}/service-discovery">Service Discovery</a>
+                            </div>
+                        </li>
+                        <li class= "nav-item" >
+                            <a class ="nav-link" href="https://prometheus.io/docs/prometheus/latest/getting_started/" target="_blank">Help</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+{{end}}

@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+
+from Casbah import Casbah
+
+def main():
+	c = Casbah()
+
+	c.exch(None, 'ssh 192.168.255.248 bucinwci')
+	c.exch("bucinwci@192.168.255.248's password: ", c.pwd('bucinwci'))
+
+	prompt = r'\[bucinwci@genie-utility ~\]\$ '
+	c.exch(prompt, 'date')
+	c.exch(prompt, 'sudo -i -u admin', verbose=True)
+
+	prompt = r'\[admin@genie-utility ~\]\$ '
+	c.exch(prompt, None, verbose=True)
+
+	c.interact()
+
+
+if __name__ == '__main__':
+	main()

@@ -1,0 +1,136 @@
+syntax="proto3";
+package cruxgen;
+
+import "heartbeat.proto";
+import "ping.proto";
+import "err.proto";
+
+service PasticheSrv {
+	rpc PingTest (Ping) returns (Ping) {}
+	rpc AddDataStream(stream AddRequest) returns (AddResponse) {}
+	rpc GetDataStream(GetRequest) returns (stream GetResponse) {}
+	rpc GetPath( PathRequest ) returns (PathResponse) {}
+	rpc RegisterFile(RegisterFileRequest) returns (RegisterFileResponse) {}
+	rpc Reserve(ReserveRequest) returns (ReserveResponse) {}
+	rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+	rpc DeleteAll(DeleteAllRequest) returns (DeleteAllResponse) {}
+	rpc AddTar(AddTarRequest) returns (AddTarResponse) {}
+	rpc AddTarFromRemote(AddTarFromRemoteRequest) returns (AddTarFromRemoteResponse) {}
+	rpc AddDirToCache(AddDirToCacheRequest) returns (AddDirToCacheResponse) {}
+	rpc AddFilesFromDir(AddFilesFromDirRequest) returns (AddFilesFromDirResponse) {}
+	rpc Heartbeat(HeartbeatReq) returns (HeartbeatReply) {}
+}
+
+message RegisterFileRequest {
+	string hash = 1;
+	string path = 2;
+}
+
+message RegisterFileResponse {
+	bool success = 1;
+        Err err = 2;
+}
+
+message ReserveRequest {
+	string hash = 1;
+	bool reserve = 2;
+}
+
+message ReserveResponse {
+	bool success = 1;
+	int64 time = 2;
+}
+
+message DeleteRequest {
+	string hash = 1;
+}
+
+message DeleteResponse {
+	bool success = 1;
+}
+
+message DeleteAllRequest {
+}
+
+message DeleteAllResponse {
+	bool success = 1;
+}
+
+
+message AddFilesFromDirRequest {
+	string dirpath = 1; 
+}
+
+message AddFilesFromDirResponse {
+	bool success = 1;
+	int64 numfiles=2 ;
+	string err = 3;
+}
+
+message AddTarRequest {
+	string hash = 1;
+	string filename = 2;
+}
+
+message AddTarResponse {
+	bool success = 1;
+	int64 received_size = 2;
+	string path = 3;
+}
+
+
+message AddTarFromRemoteRequest {
+	string hash = 1;
+}
+
+message AddTarFromRemoteResponse {
+	bool success = 1;
+	int64 received_size = 2;
+	string path = 3;
+}
+
+
+message AddDirToCacheRequest {
+	string path = 1;
+	bool scan = 2;
+}
+
+message AddDirToCacheResponse {
+	bool success = 1;
+}
+
+message AddRequest {
+	string hash = 1;
+	string filename = 2;
+    bool last_data = 3;
+    bytes data = 10;
+}
+
+message AddResponse {
+	int64 received_size = 1;
+	string path = 2;
+	// Error stuff
+	// No request ID since we're doing sync/blocking calls.
+}
+
+message GetRequest {
+	string hash = 1;
+}
+
+message GetResponse {
+	int64 sent_size = 1;
+	bytes data = 10;
+}
+
+// rpc GetPath
+message PathRequest {
+	string hash = 1;      // base64 encoded hash to lookup
+	bool  localOnly = 2; // Check other servers if not true.
+}
+
+message PathResponse {
+	bool success = 1; // FALSE key hash not found
+	string path = 2;  // fully qualified path to object
+        Err err = 3;
+	// error stuff
+}

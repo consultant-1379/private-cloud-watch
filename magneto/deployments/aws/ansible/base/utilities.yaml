@@ -1,0 +1,31 @@
+---
+- name: Install custom utilities
+  hosts:
+    - all
+  become: yes
+  tasks:
+    - name: Install initialize-volume.sh
+      copy:
+        src: scripts/initialize-volume.sh
+        dest: /usr/local/bin/
+        mode: 0700
+
+    - name: Install jq utility
+      apt:
+        package: jq
+
+    - name: Install bc utility
+      apt:
+        package: bc
+
+    - name: Install docker compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/1.21.0/docker-compose-{{ ansible_system }}-{{ ansible_architecture }}"
+        dest: /usr/local/bin/docker-compose
+        mode: 0755
+
+    - name: Install docker-registry command
+      copy:
+        src: scripts/docker-registry.sh
+        dest: /usr/local/bin/
+        mode: 0755

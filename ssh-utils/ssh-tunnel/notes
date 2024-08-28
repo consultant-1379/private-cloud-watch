@@ -1,0 +1,101 @@
+cribbed from:
+
+   https://help.ubuntu.com/community/SSH_VPN
+
+(but they omit needed tunctl steps)
+
+if you haven't already:
+
+   dnf install tunctl
+
+call the machines CLIENT and SERVER (i.e., the CLIENT connects
+to the SERVER to establish the tunnel).
+
+on the SERVER machine, in /etc/ssh/sshd_config, insert:
+
+   PermitTunnel yes
+
+on the SERVER machine, selinux will need:
+
+	require {
+		type unconfined_t;
+		type sshd_t;
+		class tun_socket relabelfrom;
+	}
+
+	#============= sshd_t ==============
+	allow sshd_t unconfined_t:tun_socket relabelfrom;
+
+pick interface names for the tunnel endpoints: tunC, tunS
+(n.b. they can be the same, e.g., tun0)
+
+pick (private) ip addresses for the tunnel endpoints: C-addr, S-addr
+
+on the respective machines:
+
+   sudo tunctl -d tun[CS]
+   sudo tunctl -u $USER -t tun[CS]
+   sudo ip link set tun[CS] up
+   sudo ip addr add [CS]-addr/32 peer [SC]-addr dev tun[CS]
+
+note that only the 'ip addr' command is different on the two machines.
+
+on the CLIENT:
+
+   ssh -NTf -oTCPKeepAlive=yes -w C:S SERVER
+
+(-N: no command; -T: no pseudo-tty; -f: go into background; use the
+keep-alive if your connections seem to be timing out.)
+
+now you have a point-to-point tunnel, so you can set up routing,
+nat, etc.  to take the tunnel down, send a HUP signal to its ssh process
+(but there doesn't seem to be any convenient way to get the pid).
+
+
+typically, one end of the tunnel has access to a desired resource.
+call this end the HUB and the other end the SPOKE.
+
+routing on the HUB (works for multiple tunnels):
+
+to /etc/iproute2/rt_tables add:
+
+   84	from.tunnel
+
+then:
+
+   sudo ip r add default table from.tunnel via GATEWAY dev ethG
+   sudo iptables -t mangle -I PREROUTING -i tun+ -j MARK --set-mark 84 # 'T'
+   sudo ip ru add fwmark 84 tab from.tunnel priority 1001
+   sudo ip r flush cache
+   sudo iptables -I FORWARD -i ethG -o tun+ -m state --state ESTABLISHED,RELATED -j ACCEPT
+   sudo iptables -I FORWARD -i tun+ -o ethG -j ACCEPT
+   sudo iptables -t nat -A POSTROUTING -o ethG -m mark --mark 84 -j MASQUERADE
+   sudo sh -c 'echo 0 >/proc/sys/net/ipv4/conf/ethG/rp_filter'
+   sudo sh -c 'echo 1 >/proc/sys/net/ipv4/ip_forward'
+
+MARKing the packets on their way in obviates the need for a separate
+'ip rule' to match each tunnel interface.  (n.b. if the 'ip rule' is
+instead based on 'iif' or 'from ADDR/MASK', then the rp_filter (reverse-path
+filter) can be left on.)
+
+
+routing on the SPOKE:
+
+   sudo ip r add DEST via H-addr dev tunK src K-addr
+
+(H and K refer, respectively, to the HUB and SPOKE ends of the tunnel.)
+repeat as needed for desired values of DEST.  don't forget to
+do something about name resolution for machines on the tunneled nets.
+
+
+find the SERVER process:
+
+   ps ax | grep " [s]shd: $USER" | egrep -v '( \[priv\]|@pts/[0-9][0-9]*) *$'
+
+find the CLIENT process:
+
+   ps ax | grep ' [s]sh -NTf '
+
+autossh -M 20000 -f -NT -oTCPKeepAlive=yes -w 0:0 HOST # worked for several weeks
+
+autossh -M 0 -f -NT -oServerAliveInterval=15 -w 0:0 HOST

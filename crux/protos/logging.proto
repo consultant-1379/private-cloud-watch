@@ -1,0 +1,48 @@
+syntax="proto3";
+package cruxgen; 
+
+
+// Methods to control logging output of a process.
+service DynamicLogging {
+    rpc  SetLogging(LoggingDef) returns (LogResponse){}
+    rpc  DisableLogging(LoggingOff) returns (LogResponse){}
+}
+
+// Do not rely on these mapping to the underlying logging package's levels
+  enum LogLevel {
+    PANIC = 0;
+    FATAL= 1;
+    ERROR = 2;
+    WARN=3;
+    INFO=4;
+    DEBUG=5;
+    NOCHANGE=6;  // for changing modules or other paramters w/o changing log level
+}
+
+// Add to the current logging spec. modules with logging enabled are not affected
+// VS. this overrides the current module list
+message LoggingDef {
+     LogLevel level = 1;
+     bool  data = 2;
+     string module = 3;  // use repeated here?  map automatically from slice?
+     string node  = 4;   // use repeated here?
+     string outfile = 5;
+     string format = 6;  // Output formatting type to use.  Possibly only to be used in conjunction with outfile.
+
+}
+
+message LogResponse {
+    bool changeMade =1;
+    string error=2;
+
+}
+//  separate calls for modules, etc, (not log level) or use NOCHANGE loglevel when updating other values? 
+
+// Turn off all debugging
+message LoggingOff {
+    bool off=1;  // the message itself is as sufficent indicator.  But can't be fieldless.
+}
+
+
+
+

@@ -1,0 +1,9 @@
+
+remote_read:
+  - url: "http://f98:35167/send"
+    read_recent: true
+
+remote_write:
+  - url: "http://f98:35167/receive"
+
+# trailing comment

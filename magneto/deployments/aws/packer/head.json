@@ -1,0 +1,27 @@
+{
+    "variables": {
+        "host_name": "head",
+        "aws_access_key": "{{ vault `/secret/magneto/aws/credentials` `access_key`}}",
+        "aws_secret_key": "{{ vault `/secret/magneto/aws/credentials` `secret_key`}}",
+        "aws_region": "{{ vault `/secret/magneto/aws/config` `aws_region`}}",
+        "registry_bucket": "{{ vault `/secret/magneto/aws/config` `registry_bucket`}}"
+    },
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "source_ami": "ami-0041fdea14c166faa",
+            "instance_type": "t3.micro",
+            "ssh_username": "ubuntu",
+            "ami_name": "{{user `host_name`}}-{{isotime \"2006-01-02-1504\"}}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "ansible",
+            "user": "ubuntu",
+            "playbook_file": "../ansible/head/main.yaml",
+            "extra_arguments": [ "--extra-vars", "host_name={{user `host_name`}} aws_access_key={{user `aws_access_key`}} aws_secret_key={{user `aws_secret_key`}} aws_region={{user `aws_region`}} registry_bucket={{user `registry_bucket`}}" ]
+        }
+    ]
+}
+

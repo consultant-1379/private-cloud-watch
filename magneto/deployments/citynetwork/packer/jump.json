@@ -1,0 +1,22 @@
+{
+    "variables": {
+        "host_name": "jump"
+    },
+    "builders": [
+        {
+            "type": "openstack",
+            "source_image": "3d1eca4d-adb1-4af0-8a73-c6733eeacd68",
+            "flavor": "1C-1GB",
+            "ssh_username": "ubuntu",
+            "image_name": "{{user `host_name`}}-{{isotime \"2006-01-02-1504\"}}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "ansible",
+            "user": "ubuntu",
+            "playbook_file": "../ansible/jump/main.yaml",
+            "extra_arguments": [ "--extra-vars", "host_name={{user `host_name`}}" ]
+        }
+    ]
+}

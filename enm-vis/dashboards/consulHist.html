@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{{ template "prom_console_head" }}
+<title>Consul Member History</title>
+</head>
+<body>
+{{ template "consulnavbar" . }}
+{{ template "consul_content_head" . }}
+<h2><div id="pageTitle">consul history</div></h2>
+<table id="consultable" class="table table-condensed table-bordered" style="width: 0%">
+<tr>
+  <th id="consultablehdr" colspan="5"></th>
+</tr>
+</table>
+<script>
+{{ template "console_util_js" }}
+{{ template "console_grid_js" }}
+{{ template "console_hist_js" }}
+var parms = new URLSearchParams(window.location.search);
+var tenant = parms.get('tenant');
+var tbase = intParm(parms, 'tbase', 0);
+
+$("#consultablehdr").text(tenant + " [searching]");
+
+function treeGrid(tr) {
+  var data = [];
+  for (var k in tr.tree) {
+    data.push({ metric: { name: k }, value: [ 0, tr.tree[k] ] });
+  }
+  makeGrid("#TS"+tr.ts, data);
+}
+
+function histGrid(trlist, error) {
+  $("#consultablehdr").text(tenant);
+  if (error == "" && trlist.length == 0) {
+    error = "no history";
+  }
+  if (error != "") {
+    $('#consultable tr:last').after('<tr><td>' + error + '</td></tr>');
+    return;
+  }
+  var ncols = Number($('#consultablehdr').attr('colspan'));
+  var idx = 0;
+  var markup = "";
+  while (idx < trlist.length) {
+    var hdr = "";
+    var data = "";
+    for (var col=0; col<ncols; col++) {
+      if (idx < trlist.length) {
+        var tr = trlist[idx];
+        hdr += '<td>';
+        var expr = 'count_values("consulStatus",status{tenant="' + tenant + '"})';
+        var url = '/consoles/consulGraph.html?g0.tab=0&g0.expr=' + encodeURIComponent(expr);
+        url += '&g0.range_input=1h';
+        url += '&g0.end_input=' + encodeURIComponent(timeStr(tr.ts+1800));
+        hdr += '<a class="prom_query_drilldown" href="' + url + '" target="_blank" title="population graph">' + timeStr(tr.ts) + '</a>';
+
+        url = '/consoles/consulHist.html?tenant=' + encodeURIComponent(tenant);
+        url += '&tbase=' + tr.ts;
+        hdr  += '&nbsp;<a class="prom_query_drilldown" href="' + url + '" title="look back from here">&#x21e0;</a>';
+        url = '/consoles/consulScape.html?tenant=' + encodeURIComponent(tenant);
+        url += '&tbase=' + (tr.ts+40*5*2*60) + '&tscale=5'; // 40 bins of 5*2 mins
+        hdr += '&nbsp;<a class="prom_query_drilldown" href="' + url + '" target="_blank" title="grid landscape">&#x21d0;</a>';
+        hdr += '</td>';
+        data += '<td class="consulgrid"><div id="TS' + tr.ts + '"></div></td>';
+      } else {
+        hdr  += '<td>&nbsp;</td>';
+        data += '<td>&nbsp;</td>';
+      }
+      idx++;
+    }
+    markup += '<tr>' + hdr + '</tr><tr>' + data + '</tr>';
+  }
+  $('#consultable tr:last').after(markup);
+  for (idx=0; idx < trlist.length; idx++) {
+    treeGrid(trlist[idx]);
+  }
+}
+consulHist(tenant, tbase, histGrid);
+</script>
+{{ template "consul_content_tail" . }}
+</body>
+</html>

@@ -1,0 +1,62 @@
+---
+- name: Install docker
+  hosts:
+    - all
+  become: yes
+  vars:
+    registry_host: "registry.erixzone.net"
+    registry_dir: "/etc/docker/certs.d/{{ registry_host }}"
+  tasks:
+    - name: Remove old docker packages
+      apt:
+        state: absent
+        package:
+          - docker
+          - docker-engine
+          - docker.io
+
+    - name: Install docker prerequisites
+      apt:
+        update_cache: yes
+        package:
+          - apt-transport-https
+          - ca-certificates
+          - software-properties-common
+
+    - name: Install docker repository GPG key
+      apt_key:
+        url: "https://download.docker.com/linux/ubuntu/gpg"
+
+    - name: Install docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ansible_distribution_release}} stable"
+
+    - name: Install docker
+      apt:
+        update_cache: yes
+        package:
+          - docker-ce
+          - python-docker
+
+    - name: Create config directory for private Docker Registry
+      file:
+        path: "{{ registry_dir }}"
+        state: directory
+        mode: 0755
+
+    - name: Install TLS certs for private Docker Registry
+      when: host_name is defined
+      copy:
+        src: "/etc/ssl/private/{{ item.src }}"
+        dest: "{{ registry_dir }}/{{ item.dest }}"
+        remote_src: yes
+      loop:
+        - { src: "{{ host_name }}.chain.crt", dest: "client.cert" }
+        - { src: "{{ host_name }}.key", dest: "client.key" }
+        - { src: "erixzone-ca-root.crt", dest: "ca.crt" }
+
+    - name: Set docker registry environment variables
+      template:
+        src: files/docker/docker-env.sh.j2
+        dest: /etc/profile.d/docker-env.sh
+

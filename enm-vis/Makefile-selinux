@@ -1,0 +1,8 @@
+HEADERDIR=/usr/share/selinux/devel/include
+include $(HEADERDIR)/Makefile
+
+%.install: %.pp
+	sudo semodule -i $^
+
+%.remove:
+	sudo semodule -r $*

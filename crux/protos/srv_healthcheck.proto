@@ -1,0 +1,38 @@
+syntax = "proto3";
+package cruxgen;
+
+import "heartbeat.proto";
+import "ping.proto";
+import "service.proto";
+import "err.proto";
+
+service HealthCheck {
+	rpc Check(HealthCheckRequest) returns (HealthCheckResponse){}
+	rpc Heartbeats(Empty) returns (HeartbeatsResponse) {}
+	rpc AbsorbBeats(HeartbeatsResponse) returns (AbsorbResponse) {}
+	rpc PingTest (Ping) returns (Ping) {}
+ 	rpc Quit(QuitReq) returns (QuitReply) {}
+}
+
+message HealthCheckRequest {
+	string srvice = 1;
+}
+
+enum ServingStatus {
+	UNKNOWN = 0;
+	SERVING = 1;
+	NOT_SERVING = 2;
+	SERVICE_UNKNOWN = 3;
+}
+
+message HealthCheckResponse {
+	ServingStatus status = 1;
+}
+
+message HeartbeatsResponse {
+	repeated HeartbeatReq list = 1;
+}
+
+message AbsorbResponse {
+	Err err = 1;
+}

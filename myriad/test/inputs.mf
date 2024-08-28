@@ -1,0 +1,10 @@
+version = "v0.2"
+
+job "echoPassage" {
+    command = "cat /inputs/test.txt"
+    wait = true
+    input "/inputs/test.txt" {
+        src = "./passage.txt"
+    }
+}
+

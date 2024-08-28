@@ -1,0 +1,49 @@
+---
+- name: Install ldap client
+  hosts:
+    - all
+  become: yes
+  tasks:
+    - name: Disable debconf management of ldap configuration
+      debconf:
+        name: ldap-auth-config
+        question: ldap-auth-config/override
+        value: false
+        vtype: boolean
+
+    - name: Install ldap client packages
+      apt:
+        update_cache: yes
+        dpkg_options: 'force-confold,force-confdef'
+        package:
+          - libnss-ldap
+          - libpam-ldap
+          - nscd
+          - ldap-utils
+
+    - name: Copy ldap configuration file
+      template:
+        src: files/ldap/ldap.conf.j2
+        dest: /etc/ldap.conf
+
+    - name: Copy nsswitch.conf with ldap additions
+      copy:
+        src: files/ldap/nsswitch.conf
+        dest: /etc/nsswitch.conf
+
+    - name: Copy .ldaprc for root user
+      template:
+        src: files/ldap/ldaprc.j2
+        dest: /root/.ldaprc
+
+    - name: Add mkhomedir to pam config
+      lineinfile:
+        path: /etc/pam.d/common-session
+        insertafter: EOF
+        line: "session required	pam_mkhomedir.so"
+
+    - name: Remove use_authtok from pam config
+      replace:
+        path: /etc/pam.d/common-password
+        regexp: ' use_authtok '
+        replace: ' '

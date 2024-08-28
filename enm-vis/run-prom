@@ -1,0 +1,17 @@
+#!/bin/sh
+
+PDIR=$GOPATH/src/github.com/erixzone/crux/tests/integration/fulcrum2
+
+CERTFLAGS=""
+if [ -f $PDIR/prometheus-host.crt ]
+then
+	CERTFLAGS="--web.server.certificate $PDIR/prometheus-host.crt
+		   --web.server.key $PDIR/prometheus-host.key"
+fi
+
+exec prometheus --config.file consul.yaml $CERTFLAGS \
+	--web.listen-address "localhost:9090" \
+	--web.page-title 'Prometheus - Friend or ENM?' \
+	--web.console.templates ./dashboards \
+	--web.console.libraries ./dashboard_libs \
+	--storage.tsdb.retention.time 300d

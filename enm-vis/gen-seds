@@ -1,0 +1,28 @@
+#!/bin/sh
+
+TAR=$(pwd)/tenant-seds.tar
+export TAR
+rm -f $TAR
+touch $TAR
+UG=$(ls -ld | cut -d' ' -f 3,4 | sed 's/ /:/')
+chown $UG $TAR
+ls -ln /home | awk 'NR>1&&$3>1000{print $3,$NF}' |
+while read i u
+do
+    cd /home/$u
+    if [ -f ./rc/keystone.sh -a -d ./key ]
+    then
+        . ./rc/keystone.sh
+        laf=`openstack --insecure server list | grep vnflaf-services`
+        if [ -n "$laf" ]
+        then
+            echo "### USERBEGIN $u ###"
+            echo $laf
+            ##ls -lt ./sed
+            SED=$(ls -t $(grep -l _instance $(pwd)/sed/*.json) | sed 1q)
+            ls -l $SED
+            tar uf $TAR $SED
+            echo "### USEREND $u ###"
+        fi
+    fi
+done

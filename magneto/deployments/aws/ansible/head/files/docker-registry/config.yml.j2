@@ -1,0 +1,34 @@
+---
+version: 0.1
+log:
+  fields:
+    service: registry
+storage:
+  cache:
+    blobdescriptor: inmemory
+  s3:
+    accesskey: {{ aws_access_key }}
+    secretkey: {{ aws_secret_key }}
+    region: {{ aws_region }}
+    bucket: {{ registry_bucket }}
+    encrypt: false
+    secure: true
+    v4auth: true
+    rootdirectory: /
+  delete:
+    enabled: true
+http:
+  addr: 0.0.0.0:443
+  headers:
+    X-Content-Type-Options: [nosniff]
+  secret: erixzone4life
+  tls:
+    certificate: /certs/registry.chain.crt
+    key: /certs/registry.key
+    clientcas:
+      - /certs/erixzone-ca-root.crt
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3

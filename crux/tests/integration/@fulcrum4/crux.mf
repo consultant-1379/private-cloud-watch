@@ -1,0 +1,33 @@
+version = "v0.2"
+
+job "f0" {
+	command = "sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --ip f0 --name f0'"
+}
+job "f1" {
+	command = "sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --ip f1 --name f1'"
+}
+job "f2" {
+	command = "sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --ip f2 --name f2'"
+}
+job "f3" {
+	command = "sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --ip f3 --name f3'"
+}
+job "f4" {
+	command = "sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --ip f4 --name f4'"
+}
+job "f5" {
+	command = "sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --ip f5 --name f5'"
+}
+job "f6" {
+	command = "sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --ip f6 --name f6'"
+}
+job "f7" {
+	command = "sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --ip f7 --name f7'"
+}
+job "f99" {
+	command = "sh -c 'cd /tmp; fulcrum watch --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --n 7'"
+        input "/kv.json" {
+            src = "crux.mf"
+        }
+	wait = true
+}

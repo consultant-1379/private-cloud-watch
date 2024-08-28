@@ -1,0 +1,23 @@
+{
+    "variables": {
+        "host_name": "jump"
+    },
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "source_ami": "ami-0041fdea14c166faa",
+            "instance_type": "t3.micro",
+            "ssh_username": "ubuntu",
+            "ami_name": "{{user `host_name`}}-{{isotime \"2006-01-02-1504\"}}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "ansible",
+            "user": "ubuntu",
+            "playbook_file": "../ansible/jump/main.yaml",
+            "extra_arguments": [ "--extra-vars", "host_name={{user `host_name`}}" ]
+        }
+    ]
+}
+

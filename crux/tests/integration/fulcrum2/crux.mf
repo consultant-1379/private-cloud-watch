@@ -1,0 +1,47 @@
+version = "v0.2"
+		job "f1" {
+			command = "ssh-agent sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 # --wait'"
+		}
+		job "f2" {
+			command = "ssh-agent sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 # --wait'"
+		}
+		job "f3" {
+			command = "ssh-agent sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 # --wait'"
+		}
+		job "f4" {
+			command = "ssh-agent sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 # --wait'"
+		}
+		job "f5" {
+			command = "ssh-agent sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 # --wait'"
+		}
+		job "f6" {
+			command = "ssh-agent sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 # --wait'"
+		}
+		job "f7" {
+			command = "ssh-agent sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 # --wait'"
+		}
+		job "f8" {
+			command = "ssh-agent sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 # --wait'"
+		}
+		job "f9" {
+			command = "ssh-agent sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 # --wait'"
+		}
+		job "f10" {
+			command = "ssh-agent sh -c 'cd /tmp; sleep 5; fulcrum flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 # --wait'"
+		}
+	job "f98" {
+		command = "sh -c 'fulcrum tomb --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --debug true --listen 35167 --fire 8090 --ifile /tmp/ifile --ofile /tmp/ofile '"
+	        output "/tmp/ofile" {
+	            src = "xxhuh"
+	        }
+	        input "/tmp/ifile" {
+	            src = "m1.out"
+	        }
+	}
+	job "f99" {
+		command = "sh -c 'cd /tmp; ip addr ls; fulcrum watch --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire -8090 --n 10'"
+	        input "/kv.json" {
+	            src = "crux.mf"
+	        }
+		wait = true
+	}

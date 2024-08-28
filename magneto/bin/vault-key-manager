@@ -1,0 +1,358 @@
+#!/bin/bash
+#
+# This script is called by ansible to manage ssh and pki keys in vault.
+#
+# Written by Loren Jan Wilson, October 2018.
+
+################################
+# Global variables.
+################################
+
+vault_engine="infrastructure"
+
+################################
+# Initialization phase.
+################################
+
+errecho () {
+    >&2 echo "$1"
+}
+
+errfatal () {
+    errecho "$1"
+    exit 1
+}
+
+usage () {
+    errecho "Usage:
+
+`basename $0` --type <key type> --deployment <name> --host <name>
+    --service <name> --destination <dir>
+
+Mandatory options:
+
+  --type <arg>, -t: Type of action. Valid types are currently: pki, ssh
+  --deployment <arg>, -p: Deployment name.
+  --host <arg>, -h: Host name.
+  --destination <arg>, -d: Destination directory for files.
+
+PKI options (mandatory for pki key type):
+
+  --service <arg>, -s: Service name.
+  --options <arg>, -o: PKI key generation options in JSON format.
+
+"
+    exit 2
+}
+
+errexit () {
+    errecho "ERROR:"
+    errecho "$1"
+    errecho
+    usage
+}
+
+# Quit if given no arguments.
+if [ -z "$1" -o "$1" == "-?" ] ; then
+    usage
+fi
+
+# Check for dependencies.
+dependencies="vault ssh-keygen jq curl";
+for dependency in $dependencies ; do
+    if ! which $dependency >/dev/null ; then
+        errexit "Can't find ${dependency}, so can't continue!
+Please install $dependency and try again."
+    fi
+done
+
+# Read options.
+short_opts='t:p:h:d:s:o:'
+long_opts='type:,deployment:,host:,destination:,service:,options:'
+options=`getopt --options ${short_opts} \
+    --longoptions ${long_opts} --name "$0" -- "$@"`
+if [ $? -ne 0 ]; then
+    errexit "Couldn't parse options!"
+fi
+eval set -- "$options"
+
+# Extract options into variables.
+while true; do
+    case "$1" in
+        -t|--type) type=$2 ; shift 2 ;;
+        -p|--deployment) deployment=$2 ; shift 2 ;;
+        -h|--host) host=$2 ; shift 2 ;;
+        -d|--destination) destination=$2 ; shift 2 ;;
+        -s|--service) service=$2 ; shift 2 ;;
+        -o|--options) pki_opts=$2 ; shift 2 ;;
+        --) shift ; break ;;
+        *) usage ; exit 1 ;;
+    esac
+done
+
+# Must specify type, deployment, host, and destination.
+if [ -z "$type" -o -z "$deployment" \
+    -o -z "$host" -o -z "$destination" ]; then
+    errexit "You must specify type, deployment, host, and destination!"
+fi
+
+# If type is pki, must specify service and options.
+if [ "$type" == "pki" -a -z "$service" ]; then
+    errexit "With pki, you must specify a service name!"
+fi
+
+if [ "$type" == "pki" -a -z "$pki_opts" ]; then
+    errexit "With pki, you must specify an options string in JSON!"
+fi
+
+# Type must be "pki" or "ssh".
+if [ "$type" != "pki" -a "$type" != "ssh" ]; then
+    errexit "Type must be 'pki' or 'ssh'!"
+fi
+
+# Destination must exist and be a directory.
+mkdir -p "$destination"
+if [ $? -ne 0 ] ; then
+    errexit "Couldn't create destination directory!"
+fi
+
+# Define the vault root location given the arguments.
+vault_root_location="${vault_engine}/deployments/${deployment}/${host}/${type}"
+# Tack the service name onto the end if this is a pki.
+if [ "$type" == "pki" ]; then
+    vault_root_location="$vault_root_location/${service}"
+fi
+
+################################
+# Support functions.
+################################
+
+# Test connectivity to vault.
+vault_test () {
+    vault_list "${vault_engine}"
+}
+
+# Pull files from vault.
+# This is a wrapper that runs pull_vault_location on the root location and the
+# default destination.
+vault_pull () {
+    pull_vault_location "$vault_root_location" "$destination"
+}
+
+# Pull files from the given vault location and dump them into the given
+# destination directory, overwriting what's there.
+pull_vault_location () {
+    echo "Pulling keys from vault, if they exist."
+
+    local location=$1
+    local dest=$2
+    declare -a keys
+
+    # Make sure there's an appropriate .gitignore file in the destination.
+    # Note: I assume this is already done now.
+    #echo "*key" >"$destination/.gitignore" || return 1
+
+    # List the keys at the given location.
+    keys=$(vault_list_keys $location) || return 1
+
+    # For each key, pull down the value into a file in $destination.
+    # Overwrite the file if it already exists.
+    echo "$keys" | while read key ; do
+        echo "Pulling value of key $location/$key"
+        local value=$(vault_read_key $location/$key)
+        if [ $? -ne 0 ] ; then
+            errecho "Discontinuing pull attempt!"
+            return 1
+        fi
+        echo "$value" >"$destination/$key"
+    done
+}
+
+# List keys at the given location.
+vault_list_keys () {
+    local location=$1
+
+    local keys=$(vault_list "$location" | jq -r '.data.keys | .[]' 2>/dev/null)
+    if [[ ! $keys ]]; then
+        errecho "No keys available at location $location"
+        return 1
+    fi
+
+    echo "$keys"
+}
+
+# Read the given key's value.
+vault_read_key () {
+    local key=$1
+
+    local value=$(vault_read $key | jq -e -j '.data.value')
+    if [ $? -ne 0 ] ; then
+        errecho "Couldn't pull value of key $key"
+        return 1
+    fi
+
+    echo "$value"
+}
+
+# Make a single vault request.
+vault_request () {
+    local body=$@
+    curl --header "X-Vault-Token: `cat ~/.vault-token`" --cacert "$VAULT_CACERT" \
+        $body
+}
+
+# Make a single vault list request.
+vault_list () {
+    local location=$1
+    vault_request --request "LIST" "$VAULT_ADDR/v1/$location"
+}
+
+# Make a single vault read request.
+vault_read () {
+    local location=$1
+    vault_request --request "GET" "$VAULT_ADDR/v1/$location"
+}
+
+# Make a single vault write request.
+vault_write () {
+    local location=$1
+    local payload=$2
+
+    # The "@-" reads from stdin.
+    echo "$payload" | vault_request --request "POST" \
+        --data @- "$VAULT_ADDR/v1/$location"
+}
+
+# Write a file into a vault key.
+vault_write_file () {
+    local location=$1
+    local file_on_disk=$2
+    echo "Writing location $location using contents of $file_on_disk"
+    # This uses the cli tool because trying to read and escape the contents of
+    # the file on disk is a bit error-prone. If you're rewriting this to use
+    # the REST API, try something like this to encode the file contents:
+    #
+    # jq -n --arg value "$(cat $file_on_disk)" '{data: { value: $value }}'
+    #
+    vault write $location value=@"$file_on_disk"
+}
+
+# Generate pki files.
+gen_pki () {
+    echo "Generating new pki cert files."
+    # Make a write request to vault and parse the output into three separate
+    # files on disk.
+    local response=$(vault_write "pki/issue/universal" "$pki_opts")
+    # Create the certificate file.
+    local certificate_file="$service.crt"
+    echo $response | jq -e -r '.data.certificate' >"$destination/$certificate_file"
+    if [ $? -ne 0 ] ; then
+        echo "Couldn't create certificate file, discontinuing pki creation attempt!"
+        return 1
+    fi
+    # Create the key file.
+    local key_file="$service.key"
+    echo $response | jq -e -r '.data.private_key' >"$destination/$key_file"
+    if [ $? -ne 0 ] ; then
+        echo "Couldn't create private key file, discontinuing pki creation attempt!"
+        return 1
+    fi
+    # Create the chain file.
+    # First, add the cert to the chain file.
+    local chain_file="$service.chain.crt"
+    cat "$destination/$certificate_file" >"$destination/$chain_file"
+    if [ $? -ne 0 ] ; then
+        echo "Couldn't append cert to chain file, discontinuing pki creation attempt!"
+        return 1
+    fi
+    # Then, append the issuing ca.
+    echo $response | jq -e -r '.data.issuing_ca' >>"$destination/$chain_file"
+    if [ $? -ne 0 ] ; then
+        echo "Couldn't append issuing ca to chain file, discontinuing pki creation attempt!"
+        return 1
+    fi
+    # You did it! Add these to the list of generated files.
+    generated_files+=($certificate_file)
+    generated_files+=($key_file)
+    generated_files+=($chain_file)
+}
+
+# Generate ssh files.
+gen_ssh () {
+    echo "Generating new ssh host keys."
+    # Generate these four types of ssh host keys.
+    keytypes=( rsa dsa ecdsa ed25519 )
+    for keytype in ${keytypes[@]}; do
+        # Note: Return if this fails.
+        keyfile="ssh_host_${keytype}_key"
+        yes | ssh-keygen -q \
+            -f "${destination}/${keyfile}" \
+            -N '' -t $keytype \
+            >/dev/null || return $?
+        # We succeeded, so we can add these to our list of generated files.
+        generated_files+=($keyfile)
+        generated_files+=("${keyfile}.pub")
+    done
+}
+
+# Upload generated files to vault.
+upload_files () {
+    echo "Uploading generated files to vault."
+    for filename in ${generated_files[@]}; do
+        vault_write_file "$vault_root_location/$filename" "$destination/$filename"
+        err=$?
+        if [ $err -ne 0 ]; then
+            errecho "Can't write file to vault! Error: $err"
+            return $err
+        fi
+    done
+}
+
+# Generate files and upload to vault.
+declare -a generated_files
+vault_gen_and_upload () {
+    echo "Generating new files and uploading to vault."
+    # Generate files.
+    if [ "$type" == "pki" ]; then
+        gen_pki || return $?
+    elif [ "$type" == "ssh" ]; then
+        gen_ssh || return $?
+    fi
+
+    # Upload files to vault.
+    echo "Generated files: ${generated_files[@]}"
+    upload_files
+}
+
+# Sign local ssh keys using vault host signer.
+sign_ssh_keys () {
+    # TODO: create the host signer and implement this
+    return 0
+}
+
+################################
+# Main flow.
+################################
+
+main () {
+    # Check connectivity to vault.
+    vault_test
+    err=$?
+    if [ $err -ne 0 ] ; then
+        errfatal "Can't contact vault! Error: $err"
+    fi
+    # Check vault for files.
+    vault_pull
+    # If we can't pull any, generate some locally and upload them.
+    if [ $? -ne 0 ] ; then
+        vault_gen_and_upload || return $?
+    fi
+    # If these are ssh host keys, sign them using vault host signer.
+    if [ "$type" == "ssh" ]; then
+        sign_ssh_keys || return $?
+    fi
+    return 0
+}
+
+main
+exit $?

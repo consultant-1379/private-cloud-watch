@@ -1,0 +1,15 @@
+package flock
+
+type KeyCount is the kind of KC error.
+	KCOffer
+	KCOfferFail
+	KCOfferGlare
+	KCResp
+	KCRespFail
+	KCDataResp
+	KCData
+	KCDataPrev
+	KCDataNoKey
+	KCDataFail
+	KCUnmarshal
+	KCMax

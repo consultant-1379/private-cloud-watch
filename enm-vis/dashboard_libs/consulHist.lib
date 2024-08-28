@@ -1,0 +1,173 @@
+{{ define "console_hist_js" }}
+function consulHist(tenant, tbase, resultFunc) {
+	var offset = 0;
+	if (tbase > 0) {
+		offset = Math.floor(Date.now()/1000) - tbase;
+	}
+	var qs = {
+		tenant: tenant,
+		counter: 0,
+		events: 0,
+		json: null,
+		queryParms: { dur: 7200, off: offset },
+		queryArg: null,
+		intervals: [],
+		xmasDict: null,
+	}
+
+	var debugFlag = false;
+	function debug(s) {
+		if (debugFlag ){
+			console.log(s);
+		}
+	}
+
+	function getSumChanges() {
+		if (qs.json != null) {
+			if (qs.json.status == 'success') {
+				procSumChanges();
+			} else {
+				return;
+			}
+		}
+		if (qs.queryParms == null) {
+			qs.intervals.reverse();
+			qs.counter = 0;
+			qs.json = null;
+			qs.xmasDict = {};
+			getChangeInterval();
+			return;
+		}
+		qs.counter++;
+		// sum(changes(status{tenant="staging01"}[1h] offset 1h))
+		var qa = 'status{tenant="' + qs.tenant + '"}';
+		qa += '[' + qs.queryParms.dur + 's]';
+		if (qs.queryParms.off > 0) {
+			qa += ' offset ' + qs.queryParms.off + 's'
+		}
+		qs.queryArg = 'sum(changes(' + qa + '))';
+		var url = '/api/v1/query?query=' + encodeURIComponent(qs.queryArg);
+		$.get(url)
+			.done(function(data){
+				//debug("success, counter = " + qs.counter);
+				qs.json = data
+				getSumChanges()
+			})
+			.fail(function(data){
+				resultFunc([], "GET SumChanges failed, counter = " + qs.counter + ", url = " + url);
+			});
+	}
+
+	function procSumChanges() {
+		debug(qs.counter + ": " + qs.queryArg);
+		//debug("    qs.json.data.resultType = " + qs.json.data.resultType);
+		//debug("    qs.json.data.result.length = " + qs.json.data.result.length);
+		if (qs.json.data.result.length > 0) {
+			var data = qs.json.data.result[0].value;
+			var count = parseInt(data[1]);
+			qs.events += count;
+			debug("    data = " + data + ", events = " + qs.events);
+			if (count > 0) {
+				var t1 = data[0] - qs.queryParms.off;
+				var t0 = t1 - qs.queryParms.dur;
+				qs.intervals.push({ts: [t0, t1], count: count})
+			}
+		}
+		if (qs.counter < 8*84 && qs.events < 250) { // 8 weeks
+			qs.queryParms.off += qs.queryParms.dur;
+		} else {
+			qs.queryParms = null;
+		}
+	}
+
+	function getChangeInterval() {
+		if (qs.json != null) {
+			if (qs.json.status == 'success') {
+				procChangeInterval();
+			} else {
+				return;
+			}
+		}
+		if (qs.counter >= qs.intervals.length) {
+			procData();
+			return;
+		}
+		item = qs.intervals[qs.counter];
+		debug(qs.counter + " " + item.ts[0] + " " + item.ts[1] + " " + item.count);
+		qs.counter++;
+		var start = Math.floor(item.ts[0]);
+		start -= start % 120;
+		var end = Math.ceil(item.ts[1]);
+		var mod = end % 120
+		if (mod != 0) {
+			end += 120 - mod;
+		}
+		debug("    " + start + " " + end);
+		var qa = 'status{tenant="' + qs.tenant + '"}';
+		var url = '/api/v1/query_range?query=' + encodeURIComponent(qa);
+		url += '&start=' + start + '&end=' + end + '&step=2m';
+		debug(url);
+
+		$.get(url)
+			.done(function(data){
+				//debug("success, counter = " + qs.counter);
+				qs.json = data
+				getChangeInterval()
+			})
+			.fail(function(data){
+				resultFunc([], "GET ChangeInterval failed, counter = " + qs.counter);
+			});
+
+	}
+
+	function procChangeInterval() {
+		debug(qs.counter + ":");
+		debug("    qs.json.data.resultType = " + qs.json.data.resultType);
+		debug("    qs.json.data.result.length = " + qs.json.data.result.length);
+		for (var i=0; i<qs.json.data.result.length; i++) {
+			var item = qs.json.data.result[i];
+			var name = item.metric.name;
+			for (var v of item.values) {
+				var ts = v[0];
+				var state = parseInt(v[1]);
+				var tsDict;
+				if (ts in qs.xmasDict) {
+					tsDict = qs.xmasDict[ts];
+				} else {
+					tsDict = {};
+					qs.xmasDict[ts] = tsDict;
+				}
+				tsDict[name] = state;
+			}
+		}
+	}
+
+	function treeCompare(t1, t2) {
+		var t1Keys = Object.keys(t1);
+		if (t1Keys.length != Object.keys(t2).length) {
+			return false;
+		}
+		for (var k of t1Keys) {
+			if (!(k in t2 && t2[k] == t1[k])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function procData() {
+		debug("done: " + Object.keys(qs.xmasDict).length);
+		var changes = [];
+		for (var ts of Object.keys(qs.xmasDict)) {
+			var tree = qs.xmasDict[ts];
+			if (changes.length == 0 ||
+			    !treeCompare(changes[changes.length-1].tree, tree)) {
+				changes.push({ts: parseInt(ts), tree: tree});
+			}
+		}
+		resultFunc(changes, "")
+	}
+
+	getSumChanges();
+}
+{{ end }}

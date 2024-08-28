@@ -1,0 +1,11 @@
+syntax = "proto3";
+package cruxgen;
+
+enum Pingu {
+    PING = 0;
+    PONG = 1;
+}
+
+message Ping {
+    Pingu value = 1;
+}

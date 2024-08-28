@@ -1,0 +1,8 @@
+package merkle
+
+type EventOp is the type of merkle event
+	MerkleNew
+	MerkleChange
+	MerkleDelete
+	MerkleDone
+	MerkleExit

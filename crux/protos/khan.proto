@@ -1,0 +1,13 @@
+syntax = "proto3";
+package cruxgen;
+
+import "err.proto";
+
+message KhanSpec {
+	string prog = 1;
+	Err err = 2;		// only used on return
+}
+
+message KhanResponse {
+	Err err = 1;
+}

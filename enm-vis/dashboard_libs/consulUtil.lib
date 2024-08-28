@@ -1,0 +1,29 @@
+{{ define "console_util_js" }}
+
+function intParm(parms, name, dflt) {
+    var pval = parms.get(name);
+    return pval === null ? dflt : parseInt(pval);
+}
+
+function strParm(parms, name, dflt) {
+    var pval = parms.get(name);
+    return pval === null ? dflt : pval;
+}
+
+function perCent2D(n) {
+  s = "" + (n+100);
+  return s.substring(1);
+}
+
+function timeStr(ts) {
+  var dt = new Date(1000*ts);
+  var s = "" + dt.getUTCFullYear();
+  s += "-" + perCent2D(dt.getUTCMonth()+1);
+  s += "-" + perCent2D(dt.getUTCDate());
+  s += " " + perCent2D(dt.getUTCHours());
+  s += ":" + perCent2D(dt.getUTCMinutes());
+//s += ":" + perCent2D(dt.getUTCSeconds()) + " Z";
+  return s;
+}
+
+{{ end }}

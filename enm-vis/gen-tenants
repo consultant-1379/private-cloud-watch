@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# run on the genie node to scrape tenant parameters
+
+ls -ln /home | awk 'NR>1&&$3>1000{print $3,$NF}' |
+while read i u
+do
+    cd /home/$u
+    if [ -f ./rc/keystone.sh -a -d ./key ]
+    then
+        . ./rc/keystone.sh
+        laf=`openstack --insecure server list | grep vnflaf-services`
+        if [ -n "$laf" ]
+        then
+            echo "### USERBEGIN $u ###"
+            echo $laf
+            ls ./key | while read k
+            do
+                echo "### KEYBEGIN $k ###"
+                cat ./key/$k
+                echo "### KEYEND $k ###"
+            done
+            echo "### USEREND $u ###"
+        fi
+    fi
+done

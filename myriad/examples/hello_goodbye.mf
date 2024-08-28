@@ -1,0 +1,20 @@
+version = "v0.2"
+
+job "hello" {
+   command = <<EOF
+sh -c 'echo "Hello myriad!" > /test.txt; echo "Wassup myriad on stdout!"'
+EOF
+   output "/test.txt" {
+      dst = "hello_output"
+   }
+}
+
+job "goodbye" {
+   command = <<END
+sh -c 'echo "Goodbye myriad!" > /test2.txt; echo "Adios myriad from stdout!"'
+END
+   output "/test2.txt" {
+      dst = "goodbye_output"
+   }
+   wait = true
+}

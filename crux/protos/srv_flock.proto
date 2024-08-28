@@ -1,0 +1,13 @@
+syntax="proto3";
+
+package cruxgen;
+
+import "service.proto";
+
+service Flock {
+	rpc Nodes(Empty) returns (NodeReply) {}
+}
+
+message NodeReply {
+	repeated string nodes = 1;
+}

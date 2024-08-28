@@ -1,0 +1,12 @@
+syntax = "proto3";
+package cruxgen;
+
+import "ping.proto";
+import "srv_healthcheck.proto";
+import "service.proto";
+
+service Yurt {
+	rpc Who(Empty) returns (HeartbeatsResponse) {}
+	rpc PingTest (Ping) returns (Ping) {}
+ 	rpc Quit(QuitReq) returns (QuitReply) {}
+}

@@ -1,0 +1,116 @@
+version = "v0.2"
+
+job "registry" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testsrv.ro testsrv.sh; chmod +x testsrv.sh; ./testsrv.sh'"
+	input "/tmp/registersrv" {
+		src = "registersrv-test"
+	}
+	input "/tmp/testsrv.ro" {
+		src = "testsrv.sh"
+	}
+	output "/tmp/.muck/whitelist.db" {
+		dst = "whitelist.db"
+	}
+	wait = true
+}
+
+job "regcli1" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/register" {
+		src = "registercli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli1.sh"
+	}
+}
+
+job "regcli2" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/register" {
+		src = "registercli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli2.sh"
+	}
+}
+
+job "regcli3" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/register" {
+		src = "registercli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli3.sh"
+	}
+}
+
+job "regcli4" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/register" {
+		src = "registercli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli4.sh"
+	}
+}
+
+job "regcli5" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/register" {
+		src = "registercli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli5.sh"
+	}
+}
+
+job "regcli6" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/register" {
+		src = "registercli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli6.sh"
+	}
+}
+
+job "regcli7" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/register" {
+		src = "registercli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli7.sh"
+	}
+}
+
+job "regcli8" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/register" {
+		src = "registercli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli8.sh"
+	}
+}
+
+job "regcli9" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/register" {
+		src = "registercli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli9.sh"
+	}
+}
+
+job "regcli10" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/register" {
+		src = "registercli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli10.sh"
+	}
+}
+

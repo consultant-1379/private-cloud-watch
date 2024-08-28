@@ -1,0 +1,11 @@
+#!/bin/sh
+
+TS_RE='[0-9][0-9][0-9][0-9]\/[0-9][0-9]\/[0-9][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9]'
+
+tail -0f "$1" |
+sed -u "/^$TS_RE new host key: /!d; s///" |
+while read key_entry
+do
+	echo "$(date -u '+%Y/%m/%d %H:%M:%S') $key_entry"
+	./KHupdate -knownhosts "$2" "$key_entry"
+done

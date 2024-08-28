@@ -1,0 +1,51 @@
+---
+# Docker registry server.
+# Protected by mutual TLS authentication & encryption.
+
+- name: Install Docker Registry service
+  hosts:
+    - all
+  become: yes
+  vars:
+    registry_dir: "/srv/registry"
+    registry_config_dir: "{{ registry_dir }}/config"
+    registry_certs_dir: "{{ registry_dir }}/certs"
+  tasks:
+    - name: Make local server directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: 0755
+      loop:
+        - "{{ registry_config_dir }}"
+        - "{{ registry_certs_dir }}"
+
+    - name: Copy registry TLS certificates
+      copy:
+        src: "certs/registry.{{item}}"
+        dest: "{{ registry_certs_dir }}"
+      loop:
+        - "chain.crt"
+        - "key"
+
+    - name: Copy erixzone root CA to registry certs directory
+      copy:
+        src: "/usr/local/share/ca-certificates/erixzone-ca-root.crt"
+        dest: "{{ registry_certs_dir }}"
+        remote_src: yes
+
+    - name: Copy registry config
+      template:
+        src: "files/docker-registry/config.yml.j2"
+        dest: "{{ registry_config_dir }}/config.yml"
+
+    - name: Start registry docker container
+      docker_container:
+        name: registry
+        image: registry:2
+        network_mode: host
+        restart_policy: always
+        volumes:
+          - "{{ registry_certs_dir }}:/certs"
+          - "{{ registry_config_dir }}:/etc/docker/registry"
+

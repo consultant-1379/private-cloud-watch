@@ -1,0 +1,19 @@
+syntax = "proto3";
+package cruxgen;
+
+/*
+	this implements Err datum for transmission. the code in pkg/crux/error.go includes
+		func Err2Proto(e *Err) *pb.Err
+		func Proto2Err(err *pb.Err) *Err
+	so if the protobuf for message Blah includes
+		Err err = 4;
+	then you create/send it as
+		x := Blah{ err:Err2Proto(myerr) }
+	and read it as
+		if e := Proto2Err(x.GetErr()); e != nil { process e }
+*/
+
+message Err {
+	string err = 1;
+	string stack = 2;
+}

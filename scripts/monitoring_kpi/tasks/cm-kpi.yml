@@ -1,0 +1,20 @@
+---
+- hosts: frstagingenm01
+  tasks:
+    - name: Run a script using an executable in a system path
+      become_user: adminsitrator
+      script: /var/lib/awx/resources/cm-kpi/cm_sync_threshold_percentage.py
+      args:
+        executable: python
+      register: percent
+      - debug:
+        msg: "Percent output: {{ percent }}"
+    - name: Get percentage from target line
+      set_fact:
+        percentage: "{{ percent|list|last }}"
+    - name: Raise warning alarm
+      shell: fm-alarm-lib -s WARNING -r ALARM -c "CM Sync Status" -p "Synchronized Nodes below KPI threshold 20%" -e "CM KPI" -m ManagementSystem
+      when: percentage.stdout|int >= 20
+    - name: Clear alarm
+      shell: fm-alarm-lib -s CLEARED -r ALARM -c "CM Sync Status" -p "Synchronized Nodes below KPI threshold 20%" -e "CM KPI" -m ManagementSystem
+      when: percentage.stdout|int < 20

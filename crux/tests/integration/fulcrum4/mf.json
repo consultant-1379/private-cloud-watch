@@ -1,0 +1,4 @@
+{ "docker.image" : "erixzone/crux-main",
+"timeout": "4000s",
+"out":"."
+}

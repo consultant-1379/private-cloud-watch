@@ -1,0 +1,12 @@
+verizon	  vzlabadmin/verizon_cu_key.pem     10.161.9.74
+sprint 	  bmasadmin/BMASenm01_cu_key.pem    10.0.18.10
+charter   cbrsadmin/charter_cu_key.pem   10.200.0.138
+cellcom   cellcomAdmin/cellcom_cu_key.pem   10.9.20.10
+charitonvalley   cvadmin/key_2018-09-20-14-09-04.pem   192.168.181.10
+carolinawest   cwwAdmin/cww_cu_key.pem    10.1.4.10
+eastkentucky   eknadmin/key.pem    10.169.0.10
+farmers   ftcadmin/ftc_cu_key.pem   10.220.6.10
+kingstreet   kswAdmin/ksw_cu_key.pem   10.132.0.10
+nextech    ntwlsadmin/ntwls_cu_key.pem   10.100.50.10
+tbaytel   tbayteladmin/tbaytel_cu_key.pem   172.24.75.202
+comcast   trial01admin/trial01_cu_key.pem   10.100.200.10

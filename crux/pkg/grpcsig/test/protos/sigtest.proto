@@ -1,0 +1,32 @@
+syntax = "proto3";
+package sigtest;
+
+
+// The Sigtest service definition.
+service Sigtest {   
+  // Get all Sigtests with filter - A server-to-client streaming RPC.
+  rpc GetSigtests(SigtestAll) returns (stream SigtestRequest) {}
+  // Create a new Sigtest - A simple RPC 
+  rpc CreateSigtest (SigtestRequest) returns (SigtestResponse) {}
+}
+
+// Request message for creating a new sigtest
+message SigtestRequest {
+  int32 id = 1;  // Unique ID number for a Sigtest.
+  string name = 2;
+  
+  message SigStream {
+    string uid = 1;
+  }
+
+  repeated SigStream sigstreams = 3;
+}
+
+message SigtestResponse {
+  int32 id = 1;
+  bool success = 2;
+}
+
+message SigtestAll {
+  bool isAll = 1;
+}

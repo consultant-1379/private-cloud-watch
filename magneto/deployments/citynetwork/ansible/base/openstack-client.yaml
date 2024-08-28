@@ -1,0 +1,27 @@
+---
+- name: Set up OpenStack client
+  hosts:
+    - all
+  become: yes
+  tasks:
+    - name: Install python-pip
+      apt:
+        package: python-pip
+
+    - name: Install openstack client
+      pip:
+        name: python-openstackclient
+
+    - name: Install swift client
+      pip:
+        name: python-swiftclient
+
+    - name: Install heat client
+      pip:
+        name: python-heatclient
+
+    - name: Copy openrc script for Citynetwork
+      copy:
+        src: ../../bin/citynetwork-openrc.sh
+        dest: /usr/local/bin/
+

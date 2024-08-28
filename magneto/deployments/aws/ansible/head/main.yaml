@@ -1,0 +1,10 @@
+---
+# This playbook builds the production head node.
+
+# Right now, it only hosts a docker registry server.
+
+- name: Install host TLS certs
+  import_playbook: host-certs.yaml
+
+- name: Install Docker Registry
+  import_playbook: docker-registry.yaml

@@ -1,0 +1,47 @@
+#!/bin/sh
+
+INSTANCE="${1:-prometheus}"
+
+ROOTCA="${INSTANCE}-root-ca"
+
+CNF="$ROOTCA.$$.cnf"
+
+trap "rm -f '$CNF'" EXIT
+
+cat >"$CNF" <<EoF
+[ req ]
+distinguished_name     = req_distinguished_name
+x509_extensions        = extensions
+prompt                 = no
+encrypt_key            = no
+default_bits           = 4096
+default_md             = sha256
+
+[ req_distinguished_name ]
+O                      = Erixzone
+OU                     = ${INSTANCE}
+CN                     = Erixzone ${INSTANCE} Root Certification Authority
+
+[ extensions ]
+basicConstraints=critical,CA:TRUE
+keyUsage=critical,keyCertSign,cRLSign
+subjectKeyIdentifier=hash
+certificatePolicies=@policies
+
+[ policies ]
+policyIdentifier="X509v3 Any Policy"
+userNotice=@notice
+
+[ notice ]
+explicitText="If you trust this CA we have a bridge that will interest you."
+
+EoF
+
+umask 077
+rm -f "$ROOTCA.key" "$ROOTCA.crt"
+openssl req -new -x509 -days 3650 -config "$CNF" \
+	-keyout "$ROOTCA.key" -out "$ROOTCA.crt"
+
+[ -f "$ROOTCA.crt" ] && chmod a+r "$ROOTCA.crt"
+
+echo "Root certificate, key are: '$ROOTCA.crt', '$ROOTCA.key'"

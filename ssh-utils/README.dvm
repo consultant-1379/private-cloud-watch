@@ -1,0 +1,17 @@
+use ssh-transport to establish a session with a remote host:
+
+    ssh-transport user@host[:port]
+
+the host key must already be present in ~/.ssh/known_hosts;
+only password authentication is supported.  send a SIGINT
+(ctrl-c) to close.
+
+to get a shell:
+
+    ssh-client host
+
+if transport sessions are timing out, try a keep-alive:
+
+    ssh-client-keep-alive host [secs]
+
+sends the 'date' command on a schedule (default every 60 seconds).

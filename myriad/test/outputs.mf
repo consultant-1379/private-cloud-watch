@@ -1,0 +1,10 @@
+version = "v0.2"
+
+job "etcDir" {
+    command = "date"
+    wait = true
+    output "/etc" {
+        dst = "etc"
+    }
+}
+

@@ -1,0 +1,45 @@
+version = "v0.2"
+	job "f99" {
+		command = "sh -c 'cd /tmp; ripstop watch --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 --n 1'"
+		wait = true
+	}
+	job "f1" {
+		command = "ssh-agent sh -c 'cd /tmp; sleep 16; ripstop flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090'"
+		wait = true
+	}
+	job "f2" {
+		command = "ssh-agent sh -c 'cd /tmp; sleep 16; ripstop flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090'"
+		wait = true
+	}
+	job "f3" {
+		command = "ssh-agent sh -c 'cd /tmp; sleep 16; ripstop flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090'"
+		wait = true
+	}
+	job "f4" {
+		command = "ssh-agent sh -c 'cd /tmp; sleep 16; ripstop flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090'"
+		wait = true
+	}
+	job "f5" {
+		command = "ssh-agent sh -c 'cd /tmp; sleep 16; ripstop flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090'"
+		wait = true
+	}
+	job "f6" {
+		command = "ssh-agent sh -c 'cd /tmp; sleep 15; ripstop flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 --horde jets; ls -l .muck'"
+		wait = true
+	}
+	job "f7" {
+		command = "ssh-agent sh -c 'cd /tmp; sleep 15; ripstop flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 --horde jets; ls -l .muck'"
+		wait = true
+	}
+	job "f8" {
+		command = "ssh-agent sh -c 'cd /tmp; sleep 15; ripstop flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 --horde jets; ls -l .muck'"
+		wait = true
+	}
+	job "f9" {
+		command = "ssh-agent sh -c 'cd /tmp; sleep 15; ripstop flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 --horde jets; ls -l .muck'"
+		wait = true
+	}
+	job "f10" {
+		command = "ssh-agent sh -c 'cd /tmp; sleep 15; ripstop flock --beacon f99:29718 --key 27670d559d41e1d1cb3ce9c71ba5081330e5e5e5853541b89f71a3209b0641bf --fire 8090 --horde jets; ls -l .muck'"
+		wait = true
+	}

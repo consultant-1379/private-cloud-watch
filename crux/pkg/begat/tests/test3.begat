@@ -1,0 +1,33 @@
+var CFLAGS="-g"
+var CC[U] = gcc
+
+mount("." "RW" "lfs:.")
+
+dictum link {
+		attr[D]
+		up[ZZ YY=yy]
+		down[OBJ=obj]
+		in[%.c]
+		out[%.o]
+		exec[/bin/bash] [[ $CC $CFLAGS -c $stem.c
+]]
+}
+
+dictum cc(stem) {
+		in[$stem.c] out[$stem.o]
+		exec[[$CC -c $stem.c
+]] }
+
+run cc(abc)
+apply(cc a b c)
+
+cd /tmp {
+    poot(cc x y)
+}
+run link()
+
+func poot(a b c){
+	var $a = "what?"
+	mount("/data" "RO" "lfs:/x/y")
+	apply($a $b $c)
+}

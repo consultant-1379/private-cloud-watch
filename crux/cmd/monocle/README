@@ -1,0 +1,18 @@
+# Placing this in the crux/cmd hierarchy, though it will likely get relocated later as it isn't a typical fulcrum cmd.
+
+# The swagger-server allows REST style access to monocle grpc calls.  To see it in action, start the servers and request the "ping" subsystem for a Monocle dump.
+
+# Example test:
+
+Run the two servers in this directory in separate windows, or in
+background. Then use curl to interrogate the REST gateway to the grpc
+functionality.
+
+Window1:
+$ monocle-grpc
+
+Window2:
+$ monocle-swagger
+
+Window3:
+$  curl -v  -XPOST    -d '{"level":"1", "subsystems":"ping"}'  http://localhost:8080/v1/monocle/dump

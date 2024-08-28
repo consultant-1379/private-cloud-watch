@@ -1,0 +1,27 @@
+---
+- name: Install TLS host certs
+  hosts:
+    - all
+  become: yes
+  tasks:
+    - name: Copy TLS certificates for this host
+      when: host_name is defined
+      copy:
+        src: "{{ playbook_dir }}/certs/{{ item }}"
+        dest: /etc/ssl/private/{{item}}
+      loop:
+        - "{{ host_name }}.crt"
+        - "{{ host_name }}.key"
+        - "{{ host_name }}.chain.crt"
+
+    - name: Create universal symlinks for cert files
+      when: host_name is defined
+      file:
+        src: "./{{ host_name }}.{{ item }}"
+        dest: "/etc/ssl/private/host.{{ item }}"
+        state: link
+      loop:
+        - "crt"
+        - "key"
+        - "chain.crt"
+

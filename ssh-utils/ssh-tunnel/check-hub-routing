@@ -1,0 +1,27 @@
+#!/bin/sh
+
+if [ "$UID" -ne 0 ]
+then
+	echo 'sorry, you have to be the superuser' >&2
+	exit 126
+fi
+if ! grep '^[0-9][0-9]*	from.tunnel$' /etc/iproute2/rt_tables >/dev/null 2>&1
+then
+	echo 'no "from.tunnel" in /etc/iproute2/rt_tables' >&2
+	exit 125
+fi
+
+show_cmd(){
+	echo "# $*"
+	$*
+}
+
+show_cmd ip r ls tab from.tunnel
+show_cmd ip ru ls
+
+show_cmd iptables -t mangle -L PREROUTING -v
+show_cmd iptables -L FORWARD -v
+show_cmd iptables -t nat -L POSTROUTING -v
+
+grep -H . /proc/sys/net/ipv4/conf/*/rp_filter
+grep -H . /proc/sys/net/ipv4/ip_forward

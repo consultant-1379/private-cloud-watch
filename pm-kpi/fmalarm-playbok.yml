@@ -1,0 +1,23 @@
+# Temporary Playbook to install FM Lib on a Vm
+---
+- hosts: frstagingenm01
+  tasks:
+    - name: Make directory to extract into
+      shell:
+        cmd: mkdir -p /tmp/fm-alarm
+      become: true
+    - name: Extract FM-lib
+      unarchive:
+        src: /var/lib/awx/resources/fm-alarm/fm_alarm_lib-v0.1.tar.gz
+        dest: /tmp/fm-alarm
+      become: true
+    - name: Make Install scrip executable
+      shell:
+        cmd: chmod +x ./install.sh
+        chdir: /tmp/fm-alarm
+      become: true
+    - name: Install Lib
+      shell:
+        cmd: ./install.sh
+        chdir: /tmp/fm-alarm
+      become: true

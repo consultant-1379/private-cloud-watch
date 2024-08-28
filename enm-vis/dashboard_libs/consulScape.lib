@@ -1,0 +1,252 @@
+{{ define "console_scape_js" }}
+function consulScape(tenant, tbase, tscale, resultFunc) {
+	var nBins = 80;
+	var tmax = tbase;
+	var tnow = Math.floor(Date.now()/1000);
+	if (tmax <= 0 || tmax > tnow) {
+		tmax = tnow;
+	}
+	if (tscale <= 0) {
+		tscale = 5;
+	}
+	if (tscale > 10) {
+		tscale = 10;
+	}
+	var binSize = tscale*120;
+	var m = tmax % binSize;
+	if (m > 0) {
+		tmax += binSize - m;
+	}
+	if (tmax > tnow) {
+		tmax -= binSize;
+	}
+	var tmin = tmax - nBins*binSize;
+
+	var qa = 'status';
+	if (tenant != "") {
+		qa += '{tenant="' + tenant + '"}';
+	}
+	var url = '/api/v1/query_range?query=' + encodeURIComponent(qa);
+	url += '&start=' + tmin + '&end=' + tmax + '&step=2m';
+	//console.log(url);
+
+	$.get(url)
+		.done(function(data){
+			procScapeData(data, tmin, tmax, binSize, resultFunc);
+		})
+		.fail(function(data){
+			resultFunc({}, tmin, tmax, binSize, "GET failed");
+		});
+}
+
+function procBinData(tmin, binSize, nBins, values) {
+	var result = [];
+	var binVal = -1;
+	var binRight = tmin + binSize;
+	for (let v of values) {
+		let t = v[0];
+		let state = parseInt(v[1]);
+		while (binRight < t) {
+			if (binVal >= 0) {
+				result.push(binVal);
+				binVal = -1;
+			} else {
+				result.push(0); // missing
+			}
+			binRight += binSize;
+		}
+		if (binVal < 0 || state == 0 ||
+		    (binVal > 0 && state > binVal)) {
+			binVal = state;
+		}
+	}
+	result.push(Math.max(0, binVal));
+	while (result.length < nBins) {
+		result.push(0);
+	}
+	return result;
+}
+
+function procScapeData(json, tmin, tmax, binSize, resultFunc) {
+	if (json.status != 'success' || json.data.resultType != 'matrix') {
+		resultFunc({}, tmin, tmax, binSize, "&lt;bollocks /&gt;");
+		return;
+	}
+	if (json.data.result.length <= 0) {
+		resultFunc({}, tmin, tmax, binSize, "no data");
+		return;
+	}
+	var nBins = (tmax - tmin)/binSize;
+	var tenants = {};
+	for (let m of json.data.result) {
+		let ten = m.metric["tenant"];
+		let hostrows = tenants[ten];
+		if (hostrows === undefined) {
+			hostrows = [];
+			tenants[ten] = hostrows;
+		}
+		hostrows.push({
+			name: m.metric["name"],
+			states: procBinData(tmin, binSize, nBins, m.values)
+		});
+	}
+
+	if (false) {
+		var msg = "result.length = " + json.data.result.length;
+		msg += ", tmin = " + tmin;
+		msg += ", tmax = " + tmax;
+		msg += ", binSize = " + binSize;
+		msg += ", nBins = " + nBins;
+		for (let h of hostrows) {
+			msg += "<br>" + h.name;
+			msg += " " + h.states;
+		}
+		resultFunc({}, tmin, binSize, msg);
+		return;
+	}
+	resultFunc(tenants, tmin, tmax, binSize, "");
+}
+
+function scapeInit(hostrows, nogreens) {
+	var data = new Array();
+
+	var state;
+	var row = 0;
+	var maxcol = 0;
+	var names = [];
+	for (let h of hostrows) {
+		if (nogreens) {
+			for (state of h.states) {
+				if (state != 1) break;
+			}
+			if (state == 1) continue;
+		}
+		names.push(h.name);
+		let col = 0;
+		for (state of h.states) {
+			data.push({
+				x: col,
+				y: row,
+				state: state
+			})
+			col += 1;
+		}
+		maxcol = Math.max(maxcol, col);
+		row += 1;
+	}
+	return { nRows: row, nCols: maxcol, names: names, data: data };
+}
+
+var cellSize = 12;
+var titleWidth = 9*cellSize;
+
+var MemberStatus = [ "Missing", "Alive", "Leaving", "Left", "Failed" ];
+var fillColors = [ "#ffffff", "#00ff00", "#ffff00", "#0000ff", "#ff0000" ];
+
+function tsnavInit(nCols) {
+	var data = new Array();
+
+	for (let col=0; col<nCols; col++) {
+		data.push(col)
+	}
+	return data;
+}
+
+function makeNavScape(id, gridData, tenant) {
+	var baseURL = '/consoles/consulScape.html';
+	baseURL += '?tenant=' + encodeURIComponent(tenant);
+	var gridWidth = gridData.nCols*cellSize+2;
+
+	var tsnavGrid = d3.select(id)
+		.append("svg")
+		.attr("width", gridWidth+"px")
+		.attr("height", (cellSize+2)+"px");
+
+	var tsnavCell = tsnavGrid.selectAll(".cell")
+		.data(tsnavInit(gridData.nCols))
+		.enter().append("rect")
+		.attr("x", function(d) { return d*cellSize+1; })
+		.attr("y", function(d) { return 1; })
+		.attr("width", function(d) { return cellSize; })
+		.attr("height", function(d) { return cellSize; })
+		.style("fill", function(d) {
+			return "#c0c0c0";
+	})
+		.style("stroke", "#222")
+		.on('click', function(d, i) {
+			let ts = gridData.tmin + d*gridData.binSize;
+			let url = baseURL;
+			url += '&tbase=' + (ts+(gridData.tmax-gridData.tmin)/2);
+			url += '&tscale=' + gridData.binSize/120;
+			url += '&nogreens=' + nogreens;
+			window.location = url;
+		})
+		.append('svg:title')
+		.text(function(d) {
+			let ts = gridData.tmin + d*gridData.binSize;
+			let s = '[' + timeStr(ts) + '] center here';
+			return s;
+	});
+}
+
+function makeGridScape(id, gridData) {
+	var gridWidth = gridData.nCols*cellSize+2;
+	var gridHeight = gridData.nRows*cellSize+2;
+
+	var tenantPrefix = gridData.tenant.toLowerCase() + '-'
+
+	var grid = d3.select(id)
+		.append("svg")
+		.attr("width", (gridWidth+titleWidth)+"px")
+		.attr("height", gridHeight+"px");
+
+	var titles = grid.append("svg")
+		.attr("x", 0+"px")
+		.attr("y", 0+"px")
+		.attr("width", titleWidth+"px")
+		.attr("height", gridHeight+"px");
+
+	var cells = grid.append("svg")
+		.attr("x", titleWidth+"px")
+		.attr("y", 0+"px")
+		.attr("width", gridWidth+"px")
+		.attr("height", gridHeight+"px");
+
+	titles.selectAll(".title")
+		.data(gridData.names)
+		.enter().append("text")
+		.text(function(d, i) {
+			return d.toLowerCase().startsWith(tenantPrefix) ?
+				d.substring(tenantPrefix.length) : d;
+		})
+		.attr("style", "fill: black; font-size: 11px;")
+		.attr("text-anchor", "end")
+		.attr("x", function(d, i) { return titleWidth-2; })
+		.attr("y", function(d, i) { return (i+1)*cellSize-1; });
+
+	cells.selectAll(".cell")
+		.data(gridData.data)
+		.enter().append("rect")
+		.attr("x", function(d) { return d.x*cellSize+1; })
+		.attr("y", function(d) { return d.y*cellSize+1; })
+		.attr("width", function(d) { return cellSize; })
+		.attr("height", function(d) { return cellSize; })
+		.style("fill", function(d) {
+			if (d.state >= 0 && d.state < fillColors.length) {
+				return fillColors[d.state];
+			}
+			return "#e0e0e0";
+		})
+		.style("stroke", "#222")
+		.append('svg:title')
+		.text(function(d) {
+			let ts = gridData.tmin + d.x*gridData.binSize;
+			let name = gridData.names[d.y];
+			let s = '[' + timeStr(ts) + '] ' + name + ' : ' + d.state;
+			if (d.state >= 0 && d.state < MemberStatus.length) {
+				s += ": " + MemberStatus[d.state];
+			}
+			return s;
+		});
+}
+{{ end }}

@@ -1,0 +1,23 @@
+---
+- hosts: all
+  tasks:
+    - name: "Copy script"
+      become: true
+      copy:
+        src: /var/lib/awx/resources/pm-kpi/pm-kpi.sh
+        dest: /tmp
+        mode: 755
+    - name: "Get PM KPI"
+      become: true
+      shell: /tmp/pm-kpi.sh
+      register: percent
+    - name: "Raise warning alarm"
+      shell: fm-alarm-lib -s WARNING -r ALARM -c "PM File collection" -p "PM file collection success rate" -e "PM KPI" -m ManagementSystem -a '{"problemText":"PM file collection success rate less than 95%"}'
+      when: ( percent.stdout|int >= 90) and ( percent.stdout|int <= 95)
+    - name: "Raise Major alarm"
+      shell: fm-alarm-lib -s MAJOR -r ALARM -c "PM File collection" -p "PM file collection success rate" -e "PM KPI" -m ManagementSystem -a '{"problemText":"PM file collection success rate less than 90%"}'
+      when: percent.stdout|int < 90
+    - name: "clear alarm"
+      shell: fm-alarm-lib -s CLEARED -r ALARM -c "PM File collection" -p "PM file collection success rate" -e "PM KPI" -m ManagementSystem
+      when:  percent.stdout|int >= 95
+      

@@ -1,0 +1,36 @@
+#!/bin/sh
+
+if [ "$UID" -ne 0 ]
+then
+	echo 'sorry, you have to be the superuser' >&2
+	exit 126
+fi
+if ! grep '^[0-9][0-9]*	from.tunnel$' /etc/iproute2/rt_tables >/dev/null 2>&1
+then
+	echo 'no "from.tunnel" in /etc/iproute2/rt_tables' >&2
+	exit 125
+fi
+
+ROUTE=$(ip r ls tab from.tunnel | grep '^default ' 2>/dev/null)
+if [ -z "$ROUTE" ]
+then
+	echo 'no default "from.tunnel" route' >&2
+	exit 125
+fi
+GWDEV=$(echo $ROUTE | sed 's/^.* //')
+
+#echo ROUTE $ROUTE
+#echo GWDEV $GWDEV
+
+ip r del $ROUTE table from.tunnel
+ip ru del fwmark 84 tab from.tunnel priority 1001
+ip r flush cache
+
+iptables -t mangle -D PREROUTING -i tun+ -j MARK --set-mark 84 # 'T'
+iptables -D FORWARD -i ${GWDEV} -o tun+ -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -D FORWARD -i tun+ -o ${GWDEV} -j ACCEPT
+iptables -t nat -D POSTROUTING -o ${GWDEV} -m mark --mark 84 -j MASQUERADE
+
+cat /proc/sys/net/ipv4/conf/default/rp_filter \
+	>/proc/sys/net/ipv4/conf/${GWDEV}/rp_filter
+echo 0 >/proc/sys/net/ipv4/ip_forward

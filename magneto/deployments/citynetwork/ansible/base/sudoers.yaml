@@ -1,0 +1,10 @@
+---
+- name: Configure sudoers
+  hosts:
+    - all
+  become: yes
+  tasks:
+    - name: Add erix group to sudo
+      copy:
+        content: "%erix   ALL=(ALL:ALL) ALL\n"
+        dest: /etc/sudoers.d/erix

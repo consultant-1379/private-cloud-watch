@@ -1,0 +1,10 @@
+{ "docker.image" : "erixzone/crux-main",
+"certdir": "/crux/xyzzy/plughin/certs",
+"cert_OU": "fulcrum_test",
+"admincert": "admincert.tar",
+"ca.url": "http://localhost:8666/jsonrpc/",
+"ca.userid": "jiengio2eeKiegah3fu",
+"ca.passwd": "Ahg9cop7xo5gie7Uo8u",
+"timeout": "4000s",
+"out":"."
+}

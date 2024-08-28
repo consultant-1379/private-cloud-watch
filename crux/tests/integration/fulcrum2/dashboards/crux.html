@@ -1,0 +1,41 @@
+{{ template "cruxhead_toplevel" . }}
+
+{{ template "prom_right_table_head" }}
+<tr>
+  <th>Crux</th>
+  <th>{{ template "prom_query_drilldown" (args "sum(up)") }} / {{ template "prom_query_drilldown" (args "count(up)") }}</th>
+</tr>
+{{ template "prom_right_table_tail" }}
+
+{{ template "crux_content_head" . }}
+<h2>{{query "up" | first | label "job"}}</h2>
+ 
+<table class="table table-condensed table-striped table-bordered" style="width: 0%">
+<tr>
+  <th colspan="4">{{query "time()" | first | value | humanizeTimestamp | printf "%.19s UTC"}}</th>
+</tr>
+<tr>
+  <th>Node</th>
+  <th>Up</th>
+  <th>Flock Msg.<br/>Rate</th>
+  <th>CPU<br/>Usage</th>
+</tr>
+{{ range query "up" | sortByLabel "instance" }}
+<tr>
+  <td><a href="crux-overview.html?instance={{ .Labels.instance }}">{{ reReplaceAll "(.*://)?([^:/]+)?(:\\d+)?(/.*)?" "$2" .Labels.instance }}</a></td>
+
+  <td{{ if eq (. | value) 1.0 }}>Yes{{ else }} class="alert-danger">No{{ end }}</td>
+
+  <td>{{ template "prom_query_drilldown" (args (printf "sum(rate(key_count{instance='%s'}[1m]))" .Labels.instance) "/sec"  "printf.1f") }}</td>
+
+  <td>{{ template "prom_query_drilldown" (args (printf "100*rate(process_cpu_seconds_total{instance='%s'}[1m])" .Labels.instance) "%"  "printf.1f") }}</td>
+
+</tr>
+{{ else }}
+<tr><td colspan=4>No nodes found.</td></tr>
+{{ end }}
+</table>
+
+{{ template "crux_content_tail" . }}
+
+{{ template "tail" }}

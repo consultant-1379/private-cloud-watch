@@ -1,0 +1,15 @@
+#!/bin/sh
+
+rm -rf sed-stuff
+mkdir sed-stuff
+cd sed-stuff
+
+tar xf ../${1:-tenant-seds.tar}
+
+mkdir tenant-nodes
+cd tenant-nodes
+
+find ../home -name '*.json' | while read i
+do
+  ../../sed-it-1 $i
+done

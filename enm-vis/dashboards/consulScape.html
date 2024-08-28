@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{{ template "prom_console_head" }}
+<title>Consul Membership Landscape</title>
+</head>
+<body>
+{{ template "consulnavbar" . }}
+{{ template "consul_content_head" . }}
+<table id="consultable" class="table table-condensed table-bordered" style="width: 0%">
+<tr>
+  <td colspan="5"><h2 id="consultablehdr"></h2></td>
+</tr>
+</table>
+<script>
+{{ template "console_util_js" }}
+{{ template "console_scape_js" }}
+var parms = new URLSearchParams(window.location.search);
+var topTenant = strParm(parms, 'tenant', "");
+var tbase = intParm(parms, 'tbase', 0);
+var tscale = intParm(parms, 'tscale', 5);
+var nogreens = intParm(parms, 'nogreens', topTenant=="" ? 1 : 0);
+
+var pageTitle = "consul landscape";
+if (nogreens) {
+    pageTitle += " (no greens)";
+}
+
+$("#consultablehdr").text(pageTitle + " [loading]");
+
+function histScape(tenants, tmin, tmax, binSize, error) {
+    if (topTenant != "") {
+        let url = '/consoles/consulScape.html';
+        url += '?tenant=';
+        url += '&tbase=' + tbase;
+        url += '&tscale=' + tscale;
+        url += '&nogreens=1';
+        pageTitle += '&nbsp;&nbsp;<a class="prom_query_drilldown" href="' + url + '" title="grid landscape (all tenants, no greens)">&#x21d5;</a>';
+    }
+    $("#consultablehdr").html(pageTitle);
+
+    var markup = '<tr>';
+    markup += '<td rowspan="2">&nbsp;</td>';
+    markup += '<td rowspan="2" style="width: ' + titleWidth + 'px;">&nbsp;</td>';
+    markup += '<td class="consulgrid">&nbsp;';
+
+    var url = '/consoles/consulScape.html';
+    url += '?tenant=' + encodeURIComponent(topTenant);
+    url += '&tbase=' + (tmin+binSize) + '&tscale=' + binSize/120;
+    url += '&nogreens=' + nogreens;
+
+    markup += '<a class="prom_query_drilldown" href="' + url + '" title="look back from here">&#x21d9;</a>';
+    markup += '&nbsp;' + timeStr(tmin) + '</td>';
+
+    markup += '<td class="consulgrid" style="text-align: center;">';
+    markup += 'Zoom level:';
+    var tcen = (tmax+tmin)/2;
+    var nBins = (tmax-tmin)/binSize;
+    for (let i=1; i<=10; i++) {
+        if (i == tscale) {
+            markup += '&nbsp;<b>' + i + '</b>';
+        } else {
+            let url = '/consoles/consulScape.html';
+            url += '?tenant=' + encodeURIComponent(topTenant);
+            url += '&tbase=' + (tcen+i*60*nBins) + '&tscale=' + i;
+            url += '&nogreens=' + nogreens;
+            markup += '&nbsp;<a class="prom_query_drilldown" href="' + url + '">' + i + '</a>';
+        }
+    }
+    markup += '</td>';
+
+    markup += '<td class="consulgrid" style="text-align: right;">' + timeStr(tmax-binSize) + '&nbsp;';
+
+    url = '/consoles/consulScape.html';
+    url += '?tenant=' + encodeURIComponent(topTenant);
+    url += '&tbase=' + (2*tmax-tmin-binSize) + '&tscale=' + binSize/120;
+    url += '&nogreens=' + nogreens;
+
+    markup += '<a class="prom_query_drilldown" href="' + url + '" title="look forward from here">&#x21d8;</a>&nbsp;</td>';
+    markup += '</tr>';
+
+    $('#consultable tr:last').after(markup);
+
+    $('#consultable tr:last')
+        .after('<tr><td class="consulgrid" colspan="4"><div id="tsnav"></div></td></tr>');
+
+    for (ten in tenants) {
+        markup = '<tr>';
+        markup += '<th>' + ten + '</th>';
+        markup += '<td class="consulgrid" colspan="4"><div id="' + ten + '"></div></td>';
+        markup += '</tr>';
+
+        $('#consultable tr:last').after(markup);
+    }
+
+    var needNav = true;
+    for (ten in tenants) {
+        hostrows = tenants[ten];
+
+        var gridData = scapeInit(hostrows, nogreens);
+        gridData.tenant = ten;
+        gridData.tmin = tmin;
+        gridData.tmax = tmax;
+        gridData.binSize = binSize;
+
+        if (needNav) {
+            makeNavScape('#tsnav', gridData, topTenant);
+            needNav = false;
+        }
+
+        makeGridScape('#' + ten, gridData);
+    }
+}
+
+consulScape(topTenant, tbase, tscale, histScape);
+</script>
+{{ template "consul_content_tail" . }}
+</body>
+</html>

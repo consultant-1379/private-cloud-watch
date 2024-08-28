@@ -1,0 +1,15 @@
+---
+- name: Install resolvconf for search domains
+  hosts:
+    - all
+  become: yes
+  tasks:
+    - name: Install resolvconf package
+      apt:
+        package: resolvconf
+
+    - name: Copy resolvconf base file with search domains
+      copy:
+        src: files/resolvconf/base
+        dest: /etc/resolvconf/resolv.conf.d/base
+

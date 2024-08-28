@@ -1,0 +1,33 @@
+syntax = "proto3";
+package cruxgen;
+
+import "ping.proto";
+
+service Registry {
+  rpc PingTest (Ping) returns (Ping) {}
+  rpc Register (CallBackEnc) returns (stream RegisterInfo) {}
+}
+
+// _enc = encrypted with flocking key
+message CallBackEnc {
+    string nodeid_enc = 1;
+    string netid_enc = 2;
+    string pubkey_enc = 3;
+}
+
+// stream sends back steward nodeid, netid, pubkey + (1) BUSY, calls reeve,
+// gets services, keys, registers, then sends
+// (2) DONE  (+ error if failed) to close stream.
+
+message RegisterInfo {
+    string nodeid = 1;
+    string netid = 2;
+    string pubkey = 3;
+    enum Working {
+        BUSY = 0;
+        DONE = 1;
+    }
+    Working status = 4;
+    string ts = 5;
+    string error = 6;
+}

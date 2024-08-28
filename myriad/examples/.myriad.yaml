@@ -1,0 +1,6 @@
+---
+timeout: 10s
+out: "./output"
+docker.image: ubuntu
+driver: docker
+docker.no_machine:

@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 4s
+  scrape_timeout: 2s
+  external_labels:
+    monitor: 'flock-monitor'
+
+scrape_configs:
+  - job_name: 'flock'
+    static_configs:
+      - targets: ['localhost:8090']

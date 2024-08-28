@@ -1,0 +1,52 @@
+{{- define "cruxhead_toplevel" -}}
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="refresh" content="60">
+{{ template "prom_console_head" }}
+</head>
+<body>
+{{ template "cruxnavbar" . }}
+
+{{/* template "menu" . */}}
+{{- end -}}
+
+{{- define "cruxhead" -}}
+<!doctype html>
+<html lang="en">
+<head>
+{{ template "prom_console_head" }}
+</head>
+<body>
+{{ template "cruxnavbar" . }}
+
+{{/* template "menu" . */}}
+{{- end -}}
+
+{{/* Navbar, should be passed . */}}
+{{- define "cruxnavbar" -}}
+{{- $version := "v.0.3" -}}
+<nav class="navbar fixed-top navbar-expand-sm navbar-dark bg-dark">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <a class="navbar-brand" href="{{ pathPrefix }}/">{{$version}}&nbsp;Prometheus</a>
+    </div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="{{ pathPrefix }}/consoles/crux.html">Crux</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ pathPrefix }}/alerts">Alerts</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+{{- end -}}
+
+{{ define "crux_content_head" }}
+<div class="prom_console_content">
+  <div class="container-fluid">
+{{ end }}
+{{ define "crux_content_tail" }}
+  </div>
+</div>
+{{ end }}

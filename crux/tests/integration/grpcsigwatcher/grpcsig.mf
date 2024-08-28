@@ -1,0 +1,70 @@
+version = "v0.2"
+
+job "grpcsigsrv" {
+	command = "sh -c 'cd /tmp; cp pubkeys_test.ro pubkeys_test.db; cp testsrv.ro testsrv.sh; chmod +x testsrv.sh; chmod 600 pubkeys_test.db; ./testsrv.sh'"
+	input "/tmp/pubkeys_test.ro" {
+		src = "pubkeys_test.db"
+	}
+	input "/tmp/pubkeys_test2.ro" {
+		src = "pubkeys_test2.db"
+	}
+	input "/tmp/grpcsigsrv" {
+		src = "grpcsigsrv-test"
+	}
+	input "/tmp/testsrv.ro" {
+		src = "testsrv.sh"
+	}
+	wait = true
+}
+
+job "rsamaude" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/.ssh/test-key-rsa" {
+		src = "test-key-rsa"
+	}
+	input "/tmp/.ssh/test-key-rsa.pub" {
+		src = "test-key-rsa.pub"
+	}
+	input "/tmp/grpcsigcli" {
+		src = "grpcsigcli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli1.sh"
+	}
+	wait = true
+}
+
+job "ecdsabobo" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/.ssh/test-key-ecdsa" {
+		src = "test-key-ecdsa"
+	}
+	input "/tmp/.ssh/test-key-ecdsa.pub" {
+		src = "test-key-ecdsa.pub"
+	}
+	input "/tmp/grpcsigcli" {
+		src = "grpcsigcli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli2.sh"
+	}
+	wait = true
+}
+
+job "ed25519bobo" {
+	command = "ssh-agent sh -c 'cd /tmp; cp testcli.ro testcli.sh; chmod +x testcli.sh; ./testcli.sh'"
+	input "/tmp/.ssh/test-key-ed25519" {
+		src = "test-key-ed25519"
+	}
+	input "/tmp/.ssh/test-key-ed25519.pub" {
+		src = "test-key-ed25519.pub"
+	}
+	input "/tmp/grpcsigcli" {
+		src = "grpcsigcli-test"
+	}
+	input "/tmp/testcli.ro" {
+		src = "testcli3.sh"
+	}
+	wait = true
+}
+

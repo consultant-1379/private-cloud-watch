@@ -1,0 +1,102 @@
+{{ template "consulhead_toplevel" . }}
+
+{{ template "prom_right_table_head" }}
+<tr>
+  <th>Consul</th>
+  <th>{{ template "prom_query_drilldown" (args "sum(up)") }} / {{ template "prom_query_drilldown" (args "count(up)") }}</th>
+</tr>
+{{ template "prom_right_table_tail" }}
+
+{{ template "consul_content_head" . }}
+<h2>{{with query "up"}}{{. | first | label "job"}}{{else}}--{{end}}</h2>
+ 
+<table id="consultable" class="table table-condensed table-bordered" style="width: 0%">
+<tr>
+  <th id="consultablehdr" colspan="5">{{query "time()" | first | value | humanizeTimestamp | printf "%.19s UTC"}}&nbsp;&nbsp;<a class="prom_query_drilldown" href="/consoles/consulScape.html" target="_blank" title="grid landscape (all tenants, no greens)">&#x21d0;</a></th>
+</tr>
+</table>
+
+<script>
+function tenantGrid(tenantID) {
+  var htmlID = "#"+tenantID
+  var queryArg = 'status{tenant="' + tenantID + '"}'
+  $.get('/api/v1/query?query='+encodeURIComponent(queryArg))
+    .done(function(json){
+      if (json.status == 'success' && json.data.resultType == 'vector') {
+        makeGrid(htmlID, json.data.result);
+      } else {
+        makeGrid(htmlID, []);
+      }
+    })
+    .fail(function(data){
+        makeGrid(htmlID, []);
+    })
+}
+
+function consulTable(tenants, error) {
+  if (error == "" && tenants.length == 0) {
+    error = "no tenants";
+  }
+  if (error != "") {
+    $('#consultable tr:last').after('<tr><td>' + error + '</td></tr>');
+    return;
+  }
+  tenants.sort(function (a, b) {
+    return a.toLowerCase().localeCompare(b.toLowerCase());
+  });
+  var ncols = Number($('#consultablehdr').attr('colspan'));
+  var idx = 0;
+  var markup = "";
+  while (idx < tenants.length) {
+    var hdr = "";
+    var data = "";
+    for (var col=0; col<ncols; col++) {
+      if (idx < tenants.length) {
+        var ten = tenants[idx];
+        var expr = 'count_values("consulStatus",status{tenant="' + ten + '"})';
+      //var url = '/graph?g0.tab=0&g0.expr=' + encodeURIComponent(expr);
+        var url = '/consoles/consulGraph.html?g0.tab=0&g0.expr=' + encodeURIComponent(expr);
+        hdr += '<td>';
+        hdr += '<a class="prom_query_drilldown" href="' + url + '" target="_blank" title="population graph">' + ten + '</a>';
+        url = '/consoles/consulHist.html?tenant=' + encodeURIComponent(ten);
+        url += '&tbase=0';
+        hdr += '&nbsp;<a class="prom_query_drilldown" href="' + url + '" target="_blank" title="grid timeline">&#x21e0;</a>';
+        url = '/consoles/consulScape.html?tenant=' + encodeURIComponent(ten);
+        url += '&tbase=0&tscale=10';
+        hdr += '&nbsp;<a class="prom_query_drilldown" href="' + url + '" target="_blank" title="grid landscape">&#x21d0;</a>';
+        hdr += '</td>';
+        data += '<td class="consulgrid"><div id="' + ten + '"></div></td>';
+      } else {
+        hdr  += '<td>&nbsp;</td>';
+        data += '<td>&nbsp;</td>';
+      }
+      idx++;
+    }
+    markup += '<tr>' + hdr + '</tr><tr>' + data + '</tr>';
+  }
+  $('#consultable tr:last').after(markup);
+  for (idx=0; idx < tenants.length; idx++) {
+    tenantGrid(tenants[idx]);
+  }
+}
+
+function tenantQuery() {
+  $.get('/api/v1/label/tenant/values')
+    .done(function(json){
+      if (json.status == 'success') {
+        consulTable(json.data, "");
+      } else {
+        consulTable([], "json.status: " + json.status);
+      }
+    })
+    .fail(function(data){
+        consulTable([], "failed to GET /api/v1/label/tenant/values");
+    })
+}
+
+tenantQuery();
+</script>
+
+{{ template "consul_content_tail" . }}
+
+{{ template "tail" }}

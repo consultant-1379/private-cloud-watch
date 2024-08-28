@@ -1,0 +1,48 @@
+syntax="proto3";
+
+package cruxgen;
+
+import "heartbeat.proto";
+import "ping.proto";
+import "err.proto";
+import "service.proto";
+
+service Picket {
+	rpc StartFiles(StartRequest) returns (StartReply) {}
+	rpc StopFiles(StopRequest) returns (StopReply) {}
+	rpc AllFiles(Empty) returns (StartReply) {}
+	rpc PingTest (Ping) returns (Ping) {}
+ 	rpc Quit(QuitReq) returns (QuitReply) {}
+}
+
+message StartRequest {
+	repeated StartReq reqs = 1;
+}
+
+message StartReq {
+	string filename = 1;
+	string funcname = 2;
+	int32 seq = 3;
+}
+
+message StartReply {
+	repeated StartRep reqs = 1;
+}
+
+message StartRep {
+	string filename = 1;
+	string funcname = 2;
+	string UUID = 3;
+	Timestamp start = 4;
+	int32 seq = 5;
+	Err err = 6;
+}
+
+message StopRequest {
+	string UUID = 1;
+}
+
+message StopReply {
+	string UUID = 1;
+	Err err = 2;
+}

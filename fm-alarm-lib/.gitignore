@@ -1,0 +1,7 @@
+.pytest_cache
+fm_alarm_lib.egg-info
+wheels
+venv
+fm_alarm_lib.tar.gz
+*.pyc
+.idea

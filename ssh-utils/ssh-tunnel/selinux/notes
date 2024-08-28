@@ -1,0 +1,5 @@
+# cf. audit2allow
+
+checkmodule -M -m -o ssh-tunnel.mod ssh-tunnel.te
+semodule_package -o ssh-tunnel.pp -m ssh-tunnel.mod
+semodule -i ssh-tunnel.pp

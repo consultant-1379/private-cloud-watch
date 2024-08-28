@@ -1,0 +1,14 @@
+syntax="proto3";
+
+package cruxgen;
+
+import "ping.proto";
+import "service.proto";
+import "khan.proto";
+
+service Proctor {
+	rpc SetSpec(KhanSpec) returns (KhanResponse) {}
+	rpc GetSpec(Empty) returns (KhanSpec) {}
+	rpc PingTest(Ping) returns (Ping) {}
+	rpc Quit(QuitReq) returns (QuitReply) {}
+}

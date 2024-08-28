@@ -1,0 +1,30 @@
+#!/bin/sh
+
+case "${SSH_CLIENT}" in
+'')	LOCALOFFSET=0	# assumed client
+	;;
+*)	LOCALOFFSET=1	# assumed server
+	;;
+esac
+
+case "$1" in
+-c)	LOCALOFFSET=0	# asserted client
+	shift
+	;;
+-s)	LOCALOFFSET=1	# asserted server
+	shift
+	;;
+esac
+
+DEV=${1:-tun0}
+
+DEVNO=$(echo ${DEV} | sed 's/^tun//')
+
+LOCALADDR=10.84.0.$((2 * ${DEVNO} + ${LOCALOFFSET}))
+PEERADDR=10.84.0.$((2 * ${DEVNO} + 1 - ${LOCALOFFSET}))
+
+sudo tunctl -d ${DEV}
+sudo tunctl -u ${USER} -t ${DEV}
+sudo ip link set ${DEV} up
+sudo ip addr add ${LOCALADDR}/32 peer ${PEERADDR} dev ${DEV}
+ip addr ls ${DEV}

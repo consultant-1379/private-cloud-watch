@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+
+import sys
+import os
+
+lines = None
+for l in sys.stdin:
+	if l.startswith('-----BEGIN '):
+		fname = os.path.basename(lprev.strip())
+		lines = l
+	elif l.startswith('-----END '):
+		with open(fname, 'w') as fp:
+			fp.write(lines + l)
+		lines = None
+	elif lines is not None:
+		lines += l
+	lprev = l

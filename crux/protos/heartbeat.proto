@@ -1,0 +1,31 @@
+syntax="proto3";
+
+package cruxgen;
+
+enum ServiceState {
+	UNK0 = 0;		// Don't use this as go hides 0 fields.
+	UP = 1;			// Alive and working optimally
+	DOWN = 2;		// Down until otherwise noted
+	BROKEN = 3;		// Broken needs attention
+	REPAIR = 4;		// Working but in a distressed or suboptimal state
+	DEPREC = 5;		// Down and removed from service
+	NMAP = 6;		// cheat for name-mapping
+}
+
+message Timestamp {
+	int64 unix = 1;
+	int64 nano = 2;
+}
+
+message HeartbeatReq {
+	string various = 1;
+	string UUID = 2;
+	ServiceState state = 3;
+	Timestamp at = 4;
+	Timestamp expires = 5;	// when time >= expires, the state is to be treated as DOWN
+	string NID = 6;
+}
+
+message HeartbeatReply {
+	string error = 1;	// empty is good news
+}

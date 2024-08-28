@@ -1,0 +1,17 @@
+{
+  "docker.image" : "erixzone/crux-main",
+  "docker.network.subnet" : "/26",
+  "docker.network.persist" : true,
+  "prometheus.port" : 8090,
+  "prometheus.job" : "fulcrum2",
+  "prometheus.docker.run" : true,
+  "prometheus.dir" : ".",
+  "prometheus.flag.web.server.certificate" : "prometheus-host.crt",
+  "prometheus.flag.web.server.key" : "prometheus-host.key",
+  "prometheus.flag.web.page-title" : "Prometheus - The Crux of the Matter [container]",
+  "prometheus.flag.web.console.templates" : "dashboards",
+  "prometheus.flag.web.console.libraries" : "dashboard_libs",
+  "prometheus.yaml_epilog" : "prom.epi",
+  "timeout": "4000s",
+  "out":"."
+}

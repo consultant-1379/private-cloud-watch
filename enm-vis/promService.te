@@ -1,0 +1,80 @@
+
+module promService 1.0;
+
+type prom_t;
+domain_type(prom_t)
+
+type prom_exec_t;
+files_type(prom_exec_t)
+
+require {
+	class dir { search open create rename rmdir read write add_name remove_name getattr setattr };
+	class file { open create rename unlink read write append execute execute_no_trans entrypoint lock map getattr setattr ioctl };
+	class process transition;
+	class tcp_socket { create getopt setopt bind name_bind node_bind connect name_connect getattr listen accept read write };
+	class udp_socket { create getopt setopt bind name_bind node_bind connect getattr read write };
+
+	role system_r;
+
+	type bin_t;
+	type http_port_t;
+	type init_t;
+	type mxi_port_t;
+	type net_conf_t;
+	type node_t;
+	type proc_t;
+	type shell_exec_t;
+	type soundd_port_t;
+	type sysctl_net_t;
+	type unlabeled_t;
+	type unreserved_port_t;
+	type user_home_dir_t;
+	type user_home_t;
+	type user_tmp_t;
+	type websm_port_t;
+	type xen_port_t;
+}
+
+#============= init_t ==============
+allow init_t prom_exec_t:file { open read execute };
+allow init_t unlabeled_t:file execute;
+allow init_t user_home_t:file { create open write append };
+
+type_transition init_t prom_exec_t:process prom_t;
+allow init_t prom_t:process transition;
+
+role system_r types prom_exec_t;
+role system_r types prom_t;
+
+#============= prom_t ==============
+allow prom_t prom_exec_t:file { open read execute getattr ioctl };
+allow prom_t prom_exec_t:file entrypoint;
+
+allow prom_t shell_exec_t:file { open read execute map };
+allow prom_t bin_t:file { open read execute execute_no_trans map };
+
+allow prom_t user_home_dir_t:dir { search open read getattr };
+allow prom_t user_home_t:dir { search create rename rmdir add_name remove_name open read write getattr };
+allow prom_t user_home_t:file { open create rename unlink read write append execute execute_no_trans lock map getattr ioctl };
+
+allow prom_t user_tmp_t:dir { search open read write add_name getattr setattr };
+allow prom_t user_tmp_t:file { open create read write getattr setattr };
+
+allow prom_t proc_t:dir { search open read getattr };
+allow prom_t proc_t:file { open read getattr };
+
+allow prom_t net_conf_t:file { open read getattr };
+allow prom_t sysctl_net_t:dir { search open read getattr };
+allow prom_t sysctl_net_t:file { open read getattr };
+
+allow prom_t self:tcp_socket { create bind connect read write getopt setopt listen accept getattr };
+allow prom_t self:udp_socket { create bind connect read write getopt setopt getattr };
+
+allow prom_t node_t:tcp_socket { name_bind name_connect node_bind };
+
+allow prom_t http_port_t:tcp_socket { name_bind name_connect node_bind };
+allow prom_t soundd_port_t:tcp_socket { name_bind name_connect node_bind };
+allow prom_t unreserved_port_t:tcp_socket { name_bind name_connect node_bind };
+allow prom_t websm_port_t:tcp_socket { name_bind name_connect node_bind };
+allow prom_t mxi_port_t:tcp_socket { name_bind name_connect node_bind };
+allow prom_t xen_port_t:tcp_socket { name_bind name_connect node_bind };

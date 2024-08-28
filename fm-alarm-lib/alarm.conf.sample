@@ -1,0 +1,11 @@
+[enm]
+haproxyIntIp = <HAPROXY_IP>
+haproxyPort = 8081
+
+[consul]
+url = servicereg-1
+port = 8500
+folder = alarms
+
+[alarm]
+alarmThreshold = 300

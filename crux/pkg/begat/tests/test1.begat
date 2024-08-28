@@ -1,0 +1,6 @@
+word1 :word2 word3
+< tests/test2.begat
+word4  word5\
+word6
+# comment
+<| cat tests/test2.begat

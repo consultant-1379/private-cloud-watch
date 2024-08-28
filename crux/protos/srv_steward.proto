@@ -1,0 +1,33 @@
+syntax = "proto3";
+package cruxgen;
+
+import "ping.proto";
+import "heartbeat.proto";
+import "srv_reeve.proto";
+
+// API principles: Caller must be a reeve or administrator. 
+// No database data is retrievable by a reeve, it gets data by callback
+// txuuids are assigned by Reeve()
+
+service Steward {
+	rpc PingTest (Ping) returns (Ping) {}
+	rpc Heartbeat(HeartbeatReq) returns (HeartbeatReply) {}
+	rpc EndpointUpdate(EndpointData) returns (Acknowledgement) {}
+	rpc ClientUpdate(ClientData) returns (Acknowledgement) {}
+}
+
+message EndpointData {
+	string txuuid = 1;
+	string nodeid = 2;
+	string netid = 3;
+	string hash = 4;
+	ServiceState status = 5;
+}
+
+message ClientData {
+	string txuuid = 1;
+	string nodeid = 2;
+	string keyid = 3;
+	string keyjson = 4;
+	KeyStatus status = 5;
+}

@@ -1,0 +1,11 @@
+# test-rsa-key
+export GRPCSIG_FINGERPRINT=e5:6f:35:eb:1b:e9:bb:a8:f1:85:73:39:c5:26:b6:22
+export GRPCSIG_USER=maude
+
+# test-ecdsa-key
+# export GRPCSIG_FINGERPRINT=2c:f3:65:41:56:97:6c:2d:aa:08:ef:34:f3:ef:e3:c8
+# export GRPCSIG_USER=bobo
+
+# test-ed25519-key
+# export GRPCSIG_FINGERPRINT=6f:d4:de:43:e2:6c:de:7c:44:2d:33:4a:d1:35:ab:8a
+# export GRPCSIG_USER=bobo

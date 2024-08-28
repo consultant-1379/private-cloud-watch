@@ -1,0 +1,10 @@
+https://arm101-eiffel004.lmera.ericsson.se:8443/nexus/content/repositories/releases/com/ericsson/oss/ERICenm_CXP9027091/1.46.111/ERICenm_CXP9027091-1.46.111.iso
+https://arm101-eiffel004.lmera.ericsson.se:8443/nexus/content/repositories/releases/com/ericsson/oss/ERICenm_CXP9027091/1.46.111/ERICenm_CXP9027091-1.46.111.iso.sha1
+https://arm101-eiffel004.lmera.ericsson.se:8443/nexus/content/repositories/releases/com/ericsson/oss/vnflaf/images/ERICrhelvnflafimage_CXP9032490/3.7.9/ERICrhelvnflafimage_CXP9032490-3.7.9.qcow2
+https://arm101-eiffel004.lmera.ericsson.se:8443/nexus/content/repositories/releases/com/ericsson/oss/vnflaf/images/ERICrhelvnflafimage_CXP9032490/3.7.9/ERICrhelvnflafimage_CXP9032490-3.7.9.qcow2.sha1
+https://arm101-eiffel004.lmera.ericsson.se:8443/nexus/content/repositories/releases/com/ericsson/oss/vnflaf/images/ERICrhelpostgresimage_CXP9032491/2.7.7/ERICrhelpostgresimage_CXP9032491-2.7.7.qcow2
+https://arm101-eiffel004.lmera.ericsson.se:8443/nexus/content/repositories/releases/com/ericsson/oss/vnflaf/images/ERICrhelpostgresimage_CXP9032491/2.7.7/ERICrhelpostgresimage_CXP9032491-2.7.7.qcow2.sha1
+https://arm901-eiffel004.athtem.eei.ericsson.se:8443/nexus/content/repositories/iso/com/ericsson/nms/litp/RHEL_Media_CXP9026759/1.3.1/RHEL_Media_CXP9026759-1.3.1.iso
+https://arm901-eiffel004.athtem.eei.ericsson.se:8443/nexus/content/repositories/iso/com/ericsson/nms/litp/RHEL_Media_CXP9026759/1.3.1/RHEL_Media_CXP9026759-1.3.1.iso.sha1
+https://arm901-eiffel004.athtem.eei.ericsson.se:8443/nexus/content/repositories/iso/com/ericsson/nms/litp/RHEL_OS_Patch_Set_CXP9026826/1.3.1/RHEL_OS_Patch_Set_CXP9026826-1.3.1.tar.gz
+https://arm901-eiffel004.athtem.eei.ericsson.se:8443/nexus/content/repositories/iso/com/ericsson/nms/litp/RHEL_OS_Patch_Set_CXP9026826/1.3.1/RHEL_OS_Patch_Set_CXP9026826-1.3.1.tar.gz.sha1

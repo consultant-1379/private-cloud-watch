@@ -1,0 +1,44 @@
+// Code generated from sigtest.proto by tools/server/main.go; DO NOT EDIT.
+
+package ruckgen
+
+import (
+	"google.golang.org/grpc"
+
+	pb "github.com/erixzone/crux/gen/cruxgen"
+	"github.com/erixzone/crux/pkg/clog"
+	"github.com/erixzone/crux/pkg/crux"
+	"github.com/erixzone/crux/pkg/grpcsvc"
+	"github.com/erixzone/crux/pkg/idutils"
+	"github.com/erixzone/crux/pkg/rucklib"
+)
+
+// Code block for service Sigtest
+
+type SigtestServerStarter struct {
+	xxx pb.SigtestServer
+}
+
+// RegisterServer : rhubarb
+func (d SigtestServerStarter) RegisterServer(s *grpc.Server) {
+	pb.RegisterSigtestServer(s, d.xxx)
+}
+
+// Name : rhubarb
+func (d SigtestServerStarter) Name() string {
+	return "Sigtest"
+}
+
+// StartSigtestServer starts and registers the Sigtest (grpc whitelist) server; exit on error for now
+func StartSigtestServer(fid *idutils.NodeIDT, serviceRev, address string, port int, xxx pb.SigtestServer, quit <-chan bool, reeveapi rucklib.ReeveAPI) idutils.NetIDT {
+	return grpcsvc.StartGrpcServer(fid , serviceRev, address, port, SigtestServerStarter{xxx}, quit, reeveapi)
+}
+
+// ConnectSigtest is how you connect to a Sigtest
+func ConnectSigtest(dest idutils.NetIDT, signer interface{}, clilog clog.Logger) (pb.SigtestClient, *crux.Err) {
+	conn, err := grpcsvc.NewGrpcClient(dest, signer, clilog, "Sigtest")
+	if err != nil {
+		return nil, err
+	}
+	return pb.NewSigtestClient(conn), nil
+}

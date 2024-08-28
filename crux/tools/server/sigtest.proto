@@ -1,0 +1,30 @@
+syntax = "proto3";
+package sigtest;
+//PRE hoho
+
+
+service Sigtest {   
+  rpc GetSigtests(SigtestAll) returns (stream SigtestRequest) {}
+  rpc CreateSigtest (SigtestRequest) returns (SigtestResponse) {}
+}
+
+message SigtestRequest {
+  int32 id = 1;
+  string name = 2;
+ 
+  
+  message SigStream {
+    string uid = 1;
+  }
+
+  repeated SigStream sigstreams = 3;
+}
+
+message SigtestResponse {
+  int32 id = 1;
+  bool success = 2;
+}
+
+message SigtestAll {
+  bool isAll = 1;
+}

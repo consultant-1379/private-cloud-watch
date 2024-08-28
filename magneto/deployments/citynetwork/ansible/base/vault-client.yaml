@@ -1,0 +1,20 @@
+---
+- name: Set up vault client
+  hosts:
+    - all
+  become: yes
+  tasks:
+    - name: Install unzip utility if necessary
+      apt:
+        package: unzip
+
+    - name: Install vault binary
+      unarchive:
+        remote_src: yes
+        src: "https://releases.hashicorp.com/vault/0.9.6/vault_0.9.6_linux_amd64.zip"
+        dest: /usr/local/bin
+
+    - name: Set vault environment variables
+      template:
+        src: files/vault-client/vault-env.sh.j2
+        dest: /etc/profile.d/vault-env.sh

@@ -1,0 +1,41 @@
+---
+# This is a base playbook. It generates a node that can be used as a vanilla
+# node which can be used when running docker-machine, and other playbooks can
+# use it as a base for layering their own services on top of it.
+
+- name: Install Python2 first so Ansible can run
+  import_playbook: python2.yaml
+
+- name: Update Ubuntu
+  import_playbook: update.yaml
+
+- name: Install erixzone TLS certs
+  import_playbook: tls-certs.yaml
+
+- name: Install host TLS certs
+  import_playbook: host-certs.yaml
+
+- name: Install resolvconf search domains
+  import_playbook: resolvconf.yaml
+
+- name: Install Docker
+  import_playbook: docker.yaml
+
+- name: Set up LDAP client
+  import_playbook: ldap-client.yaml
+
+- name: Configure sshd
+  import_playbook: sshd.yaml
+
+- name: Set up sudoers file
+  import_playbook: sudoers.yaml
+
+- name: Set up Vault client
+  import_playbook: vault-client.yaml
+
+- name: Set up OpenStack client
+  import_playbook: openstack-client.yaml
+
+- name: Copy custom utilities
+  import_playbook: utilities.yaml
+

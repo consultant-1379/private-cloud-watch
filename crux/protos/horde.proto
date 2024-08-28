@@ -1,0 +1,30 @@
+// Copyright 2015, Ericsson Inc.
+// All rights reserved
+// ditch in place of srv_horde
+
+syntax = "proto3";
+
+package cruxgen;
+
+message ProcessCmd {
+    enum CmdType {
+        QUIT = 0;
+    }
+    CmdType type = 1;
+}
+
+message Process {
+    enum Status {
+        UNKOWN = 0;
+        RUNNING = 1;
+        HALTING = 2;
+        EXITED = 3;
+    }
+    Status status = 1;
+    string role = 2;
+    string node = 3;
+    int64 pid = 4;
+    string UUID = 5;
+    map<string, string> attrs = 6;
+}
+

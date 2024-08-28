@@ -1,0 +1,9 @@
+version = "v0.2"
+
+job "s0" {
+	command = "sh -c 'cd /tmp; crux version; id; for i in /crux/xyzzy/plughin/certs/*; do echo $i; cat $i; done; sleep 5; date'"
+}
+job "st" {
+	command = "sh -cx 'cd /tmp; ls -l /; ls -l /crux; ls -l /crux/xyzzy; ls -l /crux/xyzzy/plughin; ls -l /crux/xyzzy/plughin/certs; ls -ltrc /usr/bin | tail; ip addr ls; cat /etc/resolv.conf; dig s0.myriad.erixzone.net; dig st.myriad.erixzone.net; sleep 5; id; date'"
+	wait = true
+}

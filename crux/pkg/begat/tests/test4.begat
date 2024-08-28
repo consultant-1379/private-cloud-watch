@@ -1,0 +1,23 @@
+var list = "p q r"
+
+dictum sum {
+	in[${list:%=%.wc}]
+	out[all.wc]
+	exec [[
+		pwd; ls -l
+		cat $input | awk ' {t1 += $1; t2 += $2; t3 += $3}
+		END { print t1, t2, t3, "total"}' > $alloutput
+		ls -l 
+]]
+}
+
+dictum wc(stem) {
+	in[$stem.txt] out[$stem.wc]
+	exec [[[ wc < $input | awk '{ print $1+0, $2+0, $3+0}' > $alloutput; cat $input $alloutput ]]]
+}
+
+mount("rx" "lfs:../tests/rx")
+cd rx {
+    apply(wc $list)
+    run sum()
+}

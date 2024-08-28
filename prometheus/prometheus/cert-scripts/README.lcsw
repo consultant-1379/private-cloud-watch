@@ -1,0 +1,39 @@
+to put your local prometheus behind tls:
+
+1) "make all" in this directory.
+
+2) import prometheus-root-ca.crt into your browser's
+   database of trusted certificate authorities.
+
+3) put prometheus-host.crt and prometheus-host.key someplace
+   where prometheus can find them.
+
+4) run prometheus with these command-line flags:
+
+	--web.server.certificate /path/to/prometheus-host.crt
+	--web.server.key /path/to/prometheus-host.key
+
+5) connect to prometheus on https://localhost:... or https://127.0.0.1:...
+
+
+to require tls client authentication when connecting to
+your local prometheus server:
+
+1) put prometheus behind tls, as above, with this additional
+   command-line flag:
+
+	--web.server.clientcas /path/to/prometheus-root-ca.crt
+
+2) "make promuser-client.pfx" in this directory; you will need to
+   make up a password.
+
+3) import promuser-client.pfx into your browser as one
+   of "your certificates"; you will need to supply the
+   password from step (2).
+
+4) connect to prometheus, as above; select the appropriate
+   client certificate when prompted.
+
+n.b. in this example the certificates for both the prometheus
+server and client are signed by the same authority, but there
+is no requirement for this.

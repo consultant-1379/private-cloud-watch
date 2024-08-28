@@ -1,0 +1,11 @@
+package crux
+
+type MonOp is the kind of MonInfo.
+	JoinOp
+	LeaderStartOp
+	LeaderHeartOp
+	LeaderDeltaOp
+	ProbeOp
+	RebootOp
+	HeartBeatOp
+	ExitOp

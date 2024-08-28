@@ -1,0 +1,63 @@
+package lib
+
+type StatementType is the kind of statement.
+	StatementVar
+	StatementCallDict
+	StatementCallFunc
+	StatementDict
+	StatementApply
+	StatementFunc
+	StatementCd
+	StatementMount
+
+type EntType is the kind of Ent.
+	EntMissing
+	EntPretend
+	EntExist
+	EntNeed
+	EntMax
+
+type FSEType is the type of EventFS
+	FSEnormal
+	FSEdelete
+	FSEexecstatus
+
+type FSRouterOp is the kind of operator.
+	FSRopen
+	FSRprefix
+	FSRclose
+	FSRexit
+
+type ECOp is the type of control operation
+	OpQuit
+	OpCrank
+	OpExec
+	OpDone	signal that the chore is done and resources released
+
+type StatusType is the chore's status.
+	StatusStart
+	StatusPretend
+	StatusWaiting
+	StatusCanRun
+	StatusRunning
+	StatusExecuted
+	StatusError
+	StatusQuit
+
+type tokenType is internal parsing token.
+	tokenError
+	tokenWord
+	tokenColon
+	tokenEqual
+	tokenOther
+	tokenLSB
+	tokenRSB
+	tokenLpar
+	tokenRpar
+	tokenLbrace
+	tokenRbrace
+	tokenString
+	tokenVerbatim
+	tokenNL
+	tokenWS
+	tokenEOF

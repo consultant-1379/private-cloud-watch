@@ -1,0 +1,6 @@
+{
+  "docker.image" : "erixzone/crux-main",
+  "docker.network.subnet" : "/29",
+  "timeout": "4000s",
+  "out":"."
+}

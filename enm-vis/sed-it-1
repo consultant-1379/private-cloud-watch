@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+
+import sys
+import json
+
+subsDict = {
+	'haproxyint': 'haproxy-int',
+	'haproxysb': 'haproxy-sb',
+	'nfsnorollback': 'nfsnrbk',
+	'nfspmlinks': 'nfspmlink',
+	'scripting': 'scp',
+	'smrs': 'smrsserv',
+}
+
+with open(sys.argv[1]) as fp:
+	js = json.load(fp)
+js = js["parameter_defaults"]
+#print(len(js))
+
+vmlist = []
+
+dep_id = js["deployment_id"]
+#print("# deployment_id =", dep_id)
+
+vmlist.append("%s-vnflaf-services-0" % dep_id)
+id = dep_id.lower()
+vmlist.append(js["vm_name_sentinel"])
+for i in range(int(js["serviceregistry_instances"])):
+	vmlist.append("servicereg-%d" % (i+1))
+for i in range(2):
+	vmlist.append("%s-mskpirt-%d" % (id, i))
+#if "neo4j_cc_ip_internal" in js:
+#	vmlist.append("%s-neo4j-cc" % id)
+for k in js:
+	if not k.endswith("_instances"):
+		continue
+	if k.startswith("sentinel_"):
+		continue
+	if k.startswith("serviceregistry_"):
+		continue
+	if k.startswith("sdncontroller_"):
+		continue
+	stem = k[:-10]
+	stem = subsDict.get(stem) or stem
+	for i in range(int(js[k])):
+		vmlist.append("%s-%s-%d" % (id, stem, i))
+
+vmlist.sort()
+
+with open(dep_id, 'w') as fp:
+	for vm in vmlist:
+		print(vm, file=fp)

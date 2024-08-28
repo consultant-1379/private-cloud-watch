@@ -1,0 +1,6 @@
+#!/bin/sh
+
+pidlist=$(ps ax | grep " [s]shd: $USER" | \
+	egrep -v '( \[priv\]|@pts/[0-9][0-9]*) *$' | sed 's/ .*//')
+
+[ -z "$pidlist" ] || kill -HUP $pidlist
